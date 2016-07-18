@@ -11,6 +11,9 @@ import com.github.ddth.commons.utils.SerializationUtils;
 import com.github.ddth.dao.BaseBo;
 
 public class UserBo extends BaseBo {
+
+    public final static UserBo[] EMPTY_ARRAY = new UserBo[0];
+
     private final static String ATTR_ID = "id";
     private final static String ATTR_DATA = "data";
 

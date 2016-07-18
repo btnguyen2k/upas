@@ -2,7 +2,7 @@ UPAS - User Profile & Authorization Service
 ===========================================
 
 Project home:
-[https://github.com/btnguyen2k/btnguyen2k-upas](https://github.com/btnguyen2k/btnguyen2k-upas)
+[https://github.com/btnguyen2k/upas](https://github.com/btnguyen2k/upas)
 
 
 ## License ##
