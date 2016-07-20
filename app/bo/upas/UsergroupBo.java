@@ -7,6 +7,25 @@ public class UsergroupBo extends BaseBo {
 
     public final static UsergroupBo[] EMPTY_ARRAY = new UsergroupBo[0];
 
+    public static UsergroupBo newInstance() {
+        UsergroupBo bo = new UsergroupBo();
+        bo.setIsGod(false);
+        return bo;
+    }
+
+    public static UsergroupBo newInstance(String id, String title, String description) {
+        UsergroupBo bo = newInstance();
+        bo.setId(id).setTitle(title).setDescription(description);
+        return bo;
+    }
+
+    public static UsergroupBo newInstance(String id, boolean isGod, String title,
+            String description) {
+        UsergroupBo bo = newInstance(id, title, description);
+        bo.setIsGod(isGod);
+        return bo;
+    }
+
     private final static String ATTR_ID = "id";
     private final static String ATTR_TITLE = "title";
     private final static String ATTR_DESC = "desc";

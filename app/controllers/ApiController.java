@@ -23,7 +23,7 @@ import play.mvc.Http.RawBuffer;
 import play.mvc.Http.RequestBody;
 import play.mvc.Result;
 import queue.message.SendPushNotificationsMessage;
-import utils.PngConstants;
+import utils.UpasConstants;
 import utils.PngUtils;
 
 /**
@@ -50,7 +50,7 @@ public class ApiController extends BaseController {
                         requestContent = buffer.toString();
                     } else {
                         byte[] buff = FileUtils.readFileToByteArray(rawBuffer.asFile());
-                        requestContent = buff != null ? new String(buff, PngConstants.UTF8) : "";
+                        requestContent = buff != null ? new String(buff, UpasConstants.UTF8) : "";
                     }
                 } else {
                     requestContent = requestBody.asText();
@@ -80,7 +80,7 @@ public class ApiController extends BaseController {
         for (String field : fields) {
             String fieldValue = DPathUtils.getValue(params, field, String.class);
             if (StringUtils.isBlank(fieldValue)) {
-                return doResponseJson(PngConstants.RESPONSE_CLIENT_ERROR,
+                return doResponseJson(UpasConstants.RESPONSE_CLIENT_ERROR,
                         "Field [" + field + "] is missting or invalid!");
             }
         }
@@ -126,13 +126,13 @@ public class ApiController extends BaseController {
 
             IQueue queue = getRegistry().getQueueAppEvents();
             if (PngUtils.queuePushTokenUpdate(queue, appId, token, os, tags)) {
-                return doResponseJson(PngConstants.RESPONSE_OK, "true", true);
+                return doResponseJson(UpasConstants.RESPONSE_OK, "true", true);
             } else {
                 Logger.warn("Cannot put push-token-update message to queue.");
-                return doResponseJson(PngConstants.RESPONSE_OK, "false", false);
+                return doResponseJson(UpasConstants.RESPONSE_OK, "false", false);
             }
         } catch (Exception e) {
-            return doResponseJson(PngConstants.RESPONSE_SERVER_ERROR, e.getMessage());
+            return doResponseJson(UpasConstants.RESPONSE_SERVER_ERROR, e.getMessage());
         }
     }
 
@@ -181,13 +181,13 @@ public class ApiController extends BaseController {
                 data.put("timestamp", pushToken.getTimestampUpdate());
                 data.put("tags", pushToken.getTagsAsList());
                 data.put("os", pushToken.getOs());
-                return doResponseJson(PngConstants.RESPONSE_OK, "Successful", data);
+                return doResponseJson(UpasConstants.RESPONSE_OK, "Successful", data);
             } else {
-                return doResponseJson(PngConstants.RESPONSE_NOT_FOUND, "Push token not found!");
+                return doResponseJson(UpasConstants.RESPONSE_NOT_FOUND, "Push token not found!");
             }
 
         } catch (Exception e) {
-            return doResponseJson(PngConstants.RESPONSE_SERVER_ERROR, e.getMessage());
+            return doResponseJson(UpasConstants.RESPONSE_SERVER_ERROR, e.getMessage());
         }
     }
 
@@ -226,13 +226,13 @@ public class ApiController extends BaseController {
 
             IQueue queue = getRegistry().getQueueAppEvents();
             if (PngUtils.queuePushTokenDelete(queue, appId, token, os)) {
-                return doResponseJson(PngConstants.RESPONSE_OK, "true", true);
+                return doResponseJson(UpasConstants.RESPONSE_OK, "true", true);
             } else {
                 Logger.warn("Cannot put push-token-delete message to queue.");
-                return doResponseJson(PngConstants.RESPONSE_OK, "false", false);
+                return doResponseJson(UpasConstants.RESPONSE_OK, "false", false);
             }
         } catch (Exception e) {
-            return doResponseJson(PngConstants.RESPONSE_SERVER_ERROR, e.getMessage());
+            return doResponseJson(UpasConstants.RESPONSE_SERVER_ERROR, e.getMessage());
         }
     }
 
@@ -273,7 +273,7 @@ public class ApiController extends BaseController {
             Collection<SendPushNotificationsMessage.Target> targets = PngUtils
                     .parseTargets(DPathUtils.getValue(reqParams, PARAM_TARGETS, List.class));
             if (targets == null || targets.size() == 0) {
-                return doResponseJson(PngConstants.RESPONSE_CLIENT_ERROR,
+                return doResponseJson(UpasConstants.RESPONSE_CLIENT_ERROR,
                         "Field [" + PARAM_TARGETS + "] is missing or invalid!");
             }
 
@@ -285,13 +285,13 @@ public class ApiController extends BaseController {
 
             IQueue queue = getRegistry().getQueueAppEvents();
             if (PngUtils.queuePushNotificationsSend(queue, appId, title, content, targets)) {
-                return doResponseJson(PngConstants.RESPONSE_OK, "true", true);
+                return doResponseJson(UpasConstants.RESPONSE_OK, "true", true);
             } else {
                 Logger.warn("Cannot put push-notifications-send message to queue.");
-                return doResponseJson(PngConstants.RESPONSE_OK, "false", false);
+                return doResponseJson(UpasConstants.RESPONSE_OK, "false", false);
             }
         } catch (Exception e) {
-            return doResponseJson(PngConstants.RESPONSE_SERVER_ERROR, e.getMessage());
+            return doResponseJson(UpasConstants.RESPONSE_SERVER_ERROR, e.getMessage());
         }
     }
 }

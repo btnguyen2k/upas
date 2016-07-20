@@ -21,7 +21,7 @@ import play.Logger;
 import play.mvc.Action;
 import play.mvc.Http.Context;
 import play.mvc.Result;
-import utils.PngConstants;
+import utils.UpasConstants;
 import utils.PngUtils;
 
 public class ApiAuthRequiredAction extends Action<AdminAuthRequired> {
@@ -55,7 +55,7 @@ public class ApiAuthRequiredAction extends Action<AdminAuthRequired> {
                 @Override
                 public Result get() {
                     Map<String, Object> response = new HashMap<>();
-                    response.put("message", PngConstants.RESPONSE_ACCESS_DENIED);
+                    response.put("message", UpasConstants.RESPONSE_ACCESS_DENIED);
                     response.put("status", "App [" + appId
                             + "] not found or has been disabled, or API key does not match!");
                     return ok(SerializationUtils.toJsonString(response)).as("application/json");

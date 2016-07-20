@@ -1,6 +1,9 @@
 package bo.upas;
 
+import java.util.Set;
+
 import bo.app.AppBo;
+import utils.UpasConstants;
 
 /**
  * API to access UPAS storage.
@@ -10,13 +13,24 @@ import bo.app.AppBo;
  */
 public interface IUpasDao {
     /**
+     * Initializes storage for a new app.
+     * 
+     * @param app
+     */
+    public void initApp(AppBo app);
+
+    /*----------------------------------------------------------------------*/
+
+    /**
      * Creates a new app permission.
      * 
      * @param app
      * @param perm
-     * @return
+     * @return see {@link UpasConstants#DAO_RESULT_OK},
+     *         {@link UpasConstants#DAO_RESULT_DUPLICATED} and
+     *         {@link UpasConstants#DAO_RESULT_NOT_AFFECTED}
      */
-    public boolean create(AppBo app, PermissionBo perm);
+    public int create(AppBo app, PermissionBo perm);
 
     /**
      * Deletes an existing app permission.
@@ -59,9 +73,11 @@ public interface IUpasDao {
      * 
      * @param app
      * @param user
-     * @return
+     * @return see {@link UpasConstants#DAO_RESULT_OK},
+     *         {@link UpasConstants#DAO_RESULT_DUPLICATED} and
+     *         {@link UpasConstants#DAO_RESULT_NOT_AFFECTED}
      */
-    public boolean create(AppBo app, UserBo user);
+    public int create(AppBo app, UserBo user);
 
     /**
      * Deletes an existing app user.
@@ -104,9 +120,11 @@ public interface IUpasDao {
      * 
      * @param app
      * @param usergroup
-     * @return
+     * @return see {@link UpasConstants#DAO_RESULT_OK},
+     *         {@link UpasConstants#DAO_RESULT_DUPLICATED} and
+     *         {@link UpasConstants#DAO_RESULT_NOT_AFFECTED}
      */
-    public boolean create(AppBo app, UsergroupBo usergroup);
+    public int create(AppBo app, UsergroupBo usergroup);
 
     /**
      * Deletes an existing app usergroup.
@@ -200,6 +218,23 @@ public interface IUpasDao {
      * @return
      */
     public UserRoleBo getUserRole(AppBo app, String userId, String groupId);
-    /*----------------------------------------------------------------------*/
 
+    /*----------------------------------------------------------------------*/
+    /**
+     * Fetches all usergroups of an app user.
+     * 
+     * @param app
+     * @param user
+     * @return
+     */
+    public Set<UsergroupBo> getUserRoles(AppBo app, UserBo user);
+
+    /**
+     * Fetches all permissions of an app usergroup.
+     * 
+     * @param app
+     * @param usergroup
+     * @return
+     */
+    public Set<PermissionBo> getUsergroupPermissions(AppBo app, UsergroupBo usergroup);
 }

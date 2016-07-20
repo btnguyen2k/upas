@@ -12,9 +12,13 @@ import scala.concurrent.duration.FiniteDuration;
  * @author Thanh Nguyen <btnguyen2k@gmail.com>
  * @since 0.1.0
  */
-public class PngConstants {
+public class UpasConstants {
 
     public final static Charset UTF8 = Charset.forName("UTF-8");
+
+    public final static int DAO_RESULT_OK = 1;
+    public final static int DAO_RESULT_DUPLICATED = 2;
+    public final static int DAO_RESULT_NOT_AFFECTED = 0;
 
     public final static FiniteDuration DELAY_INITIAL = Duration.create(2, TimeUnit.SECONDS);
     public final static FiniteDuration DELAY_TICK = Duration.create(1, TimeUnit.SECONDS);

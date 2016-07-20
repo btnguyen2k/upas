@@ -14,7 +14,7 @@ import models.AppModel;
 import play.data.Form;
 import play.mvc.Result;
 import play.twirl.api.Html;
-import utils.PngConstants;
+import utils.UpasConstants;
 import utils.UserUtils;
 
 /**
@@ -152,7 +152,7 @@ public class AdminCPController extends BaseController {
         IAppDao appDao = registry.get().getAppDao();
         AppBo app = appDao.getApp(id);
         if (app == null) {
-            flash(VIEW_APPLICATION_LIST, PngConstants.FLASH_MSG_PREFIX_ERROR
+            flash(VIEW_APPLICATION_LIST, UpasConstants.FLASH_MSG_PREFIX_ERROR
                     + calcMessages().at("error.app.not_found", id));
 
             return redirect(routes.AdminCPController.applicationList());
@@ -170,7 +170,7 @@ public class AdminCPController extends BaseController {
         IAppDao appDao = registry.get().getAppDao();
         AppBo app = appDao.getApp(id);
         if (app == null) {
-            flash(VIEW_APPLICATION_LIST, PngConstants.FLASH_MSG_PREFIX_ERROR
+            flash(VIEW_APPLICATION_LIST, UpasConstants.FLASH_MSG_PREFIX_ERROR
                     + calcMessages().at("error.app.not_found", id));
 
             return redirect(routes.AdminCPController.applicationList());
@@ -203,7 +203,7 @@ public class AdminCPController extends BaseController {
         IAppDao appDao = registry.get().getAppDao();
         AppBo app = appDao.getApp(id);
         if (app == null) {
-            flash(VIEW_APPLICATION_LIST, PngConstants.FLASH_MSG_PREFIX_ERROR
+            flash(VIEW_APPLICATION_LIST, UpasConstants.FLASH_MSG_PREFIX_ERROR
                     + calcMessages().at("error.app.not_found", id));
 
             return redirect(routes.AdminCPController.applicationList());
@@ -219,7 +219,7 @@ public class AdminCPController extends BaseController {
         IAppDao appDao = registry.get().getAppDao();
         AppBo app = appDao.getApp(id);
         if (app == null) {
-            flash(VIEW_APPLICATION_LIST, PngConstants.FLASH_MSG_PREFIX_ERROR
+            flash(VIEW_APPLICATION_LIST, UpasConstants.FLASH_MSG_PREFIX_ERROR
                     + calcMessages().at("error.app.not_found", id));
 
             return redirect(routes.AdminCPController.applicationList());

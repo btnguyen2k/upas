@@ -20,7 +20,7 @@ import modules.registry.IRegistry;
 import play.Logger;
 import queue.message.BaseMessage;
 import queue.message.DeliverPushNotificationMessage;
-import utils.PngConstants;
+import utils.UpasConstants;
 import utils.PngUtils;
 
 /**
@@ -70,7 +70,7 @@ public class PushNotificationThread extends BaseQueueThread {
 
             Set<String> tokens = new HashSet<>();
             for (PushTokenBo pushToken : pushTokens) {
-                if (StringUtils.equalsIgnoreCase(pushToken.getOs(), PngConstants.OS_IOS)) {
+                if (StringUtils.equalsIgnoreCase(pushToken.getOs(), UpasConstants.OS_IOS)) {
                     tokens.add(pushToken.getToken());
                 } else {
                     Logger.warn(

@@ -26,6 +26,7 @@ import akka.actor.ActorSystem;
 import akka.cluster.Member;
 import bo.app.IAppDao;
 import bo.pushtoken.IPushTokenDao;
+import bo.upas.IUpasDao;
 import bo.user.IUserDao;
 import play.Application;
 import play.Logger;
@@ -244,6 +245,14 @@ public class RegistryImpl implements IRegistry {
     @Override
     public IUserDao getUserDao() {
         return appContext.getBean(IUserDao.class);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IUpasDao getUpasDao() {
+        return appContext.getBean(IUpasDao.class);
     }
 
     /**

@@ -21,7 +21,7 @@ import play.mvc.Controller;
 import play.mvc.Http.MultipartFormData;
 import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Http.RequestBody;
-import utils.PngConstants;
+import utils.UpasConstants;
 import utils.PngGlobals;
 import utils.UserUtils;
 
@@ -93,9 +93,9 @@ public class FormValidatorImpl implements IFormValidator {
         if (p12FilePart != null) {
             File file = p12FilePart.getFile();
             long fileSize = file.length();
-            if (fileSize > PngConstants.MAX_IOS_P12_FILE_SIZE) {
+            if (fileSize > UpasConstants.MAX_IOS_P12_FILE_SIZE) {
                 errors.add(new ValidationError("iOSP12File", "error.app.invalid_ios_p12_file||"
-                        + fileSize + "||" + PngConstants.MAX_IOS_P12_FILE_SIZE));
+                        + fileSize + "||" + UpasConstants.MAX_IOS_P12_FILE_SIZE));
             } else {
                 if (fileSize > 0) {
                     try {

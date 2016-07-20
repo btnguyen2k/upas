@@ -6,6 +6,7 @@ import akka.actor.ActorSystem;
 import akka.cluster.Member;
 import bo.app.IAppDao;
 import bo.pushtoken.IPushTokenDao;
+import bo.upas.IUpasDao;
 import bo.user.IUserDao;
 import play.Application;
 
@@ -88,6 +89,13 @@ public interface IRegistry {
      * @return
      */
     public IUserDao getUserDao();
+
+    /**
+     * Gets {@link IUpasDao} instance.
+     * 
+     * @return
+     */
+    public IUpasDao getUpasDao();
 
     /**
      * Gets {@link IQueue} to buffer application's events.

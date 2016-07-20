@@ -14,6 +14,17 @@ public class UserBo extends BaseBo {
 
     public final static UserBo[] EMPTY_ARRAY = new UserBo[0];
 
+    public static UserBo newInstance() {
+        UserBo bo = new UserBo();
+        return bo;
+    }
+
+    public static UserBo newInstance(String id, Map<String, Object> data) {
+        UserBo bo = newInstance();
+        bo.setId(id).setDataMap(data);
+        return bo;
+    }
+
     private final static String ATTR_ID = "id";
     private final static String ATTR_DATA = "data";
 
@@ -23,7 +34,7 @@ public class UserBo extends BaseBo {
     }
 
     public UserBo setId(String id) {
-        setAttribute(ATTR_ID, id);
+        setAttribute(ATTR_ID, id != null ? id.trim().toLowerCase() : null);
         return this;
     }
 

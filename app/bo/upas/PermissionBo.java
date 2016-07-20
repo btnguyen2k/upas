@@ -7,6 +7,17 @@ public class PermissionBo extends BaseBo {
 
     public final static PermissionBo[] EMPTY_ARRAY = new PermissionBo[0];
 
+    public static PermissionBo newInstance() {
+        PermissionBo bo = new PermissionBo();
+        return bo;
+    }
+
+    public static PermissionBo newInstance(String id, String title, String desc) {
+        PermissionBo bo = newInstance();
+        bo.setId(id).setTitle(title).setDescription(desc);
+        return bo;
+    }
+
     private final static String ATTR_ID = "id";
     private final static String ATTR_TITLE = "title";
     private final static String ATTR_DESC = "desc";
@@ -17,7 +28,7 @@ public class PermissionBo extends BaseBo {
     }
 
     public PermissionBo setId(String id) {
-        setAttribute(ATTR_ID, id);
+        setAttribute(ATTR_ID, id != null ? id.trim() : null);
         return this;
     }
 
@@ -27,7 +38,7 @@ public class PermissionBo extends BaseBo {
     }
 
     public PermissionBo setTitle(String title) {
-        setAttribute(ATTR_TITLE, title);
+        setAttribute(ATTR_TITLE, title != null ? title.trim() : null);
         return this;
     }
 
@@ -37,7 +48,7 @@ public class PermissionBo extends BaseBo {
     }
 
     public PermissionBo setDescription(String desc) {
-        setAttribute(ATTR_DESC, desc);
+        setAttribute(ATTR_DESC, desc != null ? desc.trim() : null);
         return this;
     }
 }

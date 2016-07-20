@@ -3,11 +3,14 @@ package bo.upas.jdbc;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.DuplicateKeyException;
 
 import com.github.ddth.commons.utils.DPathUtils;
 import com.github.ddth.dao.jdbc.BaseJdbcDao;
@@ -19,6 +22,7 @@ import bo.upas.UserBo;
 import bo.upas.UserRoleBo;
 import bo.upas.UsergroupBo;
 import bo.upas.UsergroupPermBo;
+import utils.UpasConstants;
 
 /**
  * Jdbc-implement of {@link IUpasDao}.
@@ -26,7 +30,7 @@ import bo.upas.UsergroupPermBo;
  * @author Thanh Nguyen <btnguyen2k@gmail.com>
  * @since 0.1.0
  */
-public class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
+public abstract class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
 
     private String tableTemplatePermission = "app_permission_{0}";
     private String tableTemplateUser = "app_user_{0}";
@@ -133,7 +137,7 @@ public class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
 
     /*----------------------------------------------------------------------*/
 
-    private String calcTableNamePermission(AppBo app) {
+    protected String calcTableNamePermission(AppBo app) {
         return MessageFormat.format(tableTemplatePermission, app.getId());
     }
 
@@ -165,7 +169,7 @@ public class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
     }
 
     /*----------------------------------------------------------------------*/
-    private String calcTableNameUser(AppBo app) {
+    protected String calcTableNameUser(AppBo app) {
         return MessageFormat.format(tableTemplateUser, app.getId());
     }
 
@@ -197,7 +201,7 @@ public class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
     }
 
     /*----------------------------------------------------------------------*/
-    private String calcTableNameUsergroup(AppBo app) {
+    protected String calcTableNameUsergroup(AppBo app) {
         return MessageFormat.format(tableTemplateUsergroup, app.getId());
     }
 
@@ -229,7 +233,7 @@ public class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
     }
 
     /*----------------------------------------------------------------------*/
-    private String calcTableNameUsergroupPerm(AppBo app) {
+    protected String calcTableNameUsergroupPerm(AppBo app) {
         return MessageFormat.format(tableTemplateUsergroupPermission, app.getId());
     }
 
@@ -252,7 +256,7 @@ public class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
     }
 
     /*----------------------------------------------------------------------*/
-    private String calcTableNameUserRole(AppBo app) {
+    protected String calcTableNameUserRole(AppBo app) {
         return MessageFormat.format(tableTemplateUserRole, app.getId());
     }
 
@@ -281,13 +285,6 @@ public class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
     public JdbcUpasDao init() {
         super.init();
 
-        // SQL_CREATE_APP = MessageFormat.format(SQL_CREATE_APP, tableNameApp);
-        // SQL_DELETE_APP = MessageFormat.format(SQL_DELETE_APP, tableNameApp);
-        // SQL_GET_APP = MessageFormat.format(SQL_GET_APP, tableNameApp);
-        // SQL_GET_ALL_APP_IDS = MessageFormat.format(SQL_GET_ALL_APP_IDS,
-        // tableNameApp);
-        // SQL_UPDATE_APP = MessageFormat.format(SQL_UPDATE_APP, tableNameApp);
-
         return this;
     }
 
@@ -310,12 +307,15 @@ public class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
      * {@inheritDoc}
      */
     @Override
-    public boolean create(AppBo app, PermissionBo perm) {
+    public int create(AppBo app, PermissionBo perm) {
         try {
             String SQL = MessageFormat.format(SQL_CREATE_PERMISSION, calcTableNamePermission(app));
             int numRows = execute(SQL, PermissionBoMapper.valuesForCreate(perm));
             invalidate(app, perm, true);
-            return numRows > 0;
+            return numRows > 0 ? UpasConstants.DAO_RESULT_OK
+                    : UpasConstants.DAO_RESULT_NOT_AFFECTED;
+        } catch (DuplicateKeyException dke) {
+            return UpasConstants.DAO_RESULT_DUPLICATED;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -369,7 +369,8 @@ public class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
             try {
                 String SQL = MessageFormat.format(SQL_GET_ALL_PERMISSION_IDS,
                         calcTableNamePermission(app));
-                List<Map<String, Object>> dbRows = executeSelect(SQL, new Object[] { app.getId() });
+                List<Map<String, Object>> dbRows = executeSelect(SQL,
+                        ArrayUtils.EMPTY_OBJECT_ARRAY);
                 for (Map<String, Object> dbRow : dbRows) {
                     String id = DPathUtils.getValue(dbRow, PermissionBoMapper.COL_ID, String.class);
                     if (!StringUtils.isBlank(id)) {
@@ -431,12 +432,15 @@ public class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
      * {@inheritDoc}
      */
     @Override
-    public boolean create(AppBo app, UserBo user) {
+    public int create(AppBo app, UserBo user) {
         try {
             String SQL = MessageFormat.format(SQL_CREATE_USER, calcTableNameUser(app));
             int numRows = execute(SQL, UserBoMapper.valuesForCreate(user));
             invalidate(app, user, true);
-            return numRows > 0;
+            return numRows > 0 ? UpasConstants.DAO_RESULT_OK
+                    : UpasConstants.DAO_RESULT_NOT_AFFECTED;
+        } catch (DuplicateKeyException dke) {
+            return UpasConstants.DAO_RESULT_DUPLICATED;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -489,7 +493,8 @@ public class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
             userIds = new ArrayList<>();
             try {
                 String SQL = MessageFormat.format(SQL_GET_ALL_USER_IDS, calcTableNameUser(app));
-                List<Map<String, Object>> dbRows = executeSelect(SQL, new Object[] { app.getId() });
+                List<Map<String, Object>> dbRows = executeSelect(SQL,
+                        ArrayUtils.EMPTY_OBJECT_ARRAY);
                 for (Map<String, Object> dbRow : dbRows) {
                     String id = DPathUtils.getValue(dbRow, UserBoMapper.COL_ID, String.class);
                     if (!StringUtils.isBlank(id)) {
@@ -553,12 +558,15 @@ public class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
      * {@inheritDoc}
      */
     @Override
-    public boolean create(AppBo app, UsergroupBo usergroup) {
+    public int create(AppBo app, UsergroupBo usergroup) {
         try {
             String SQL = MessageFormat.format(SQL_CREATE_USERGROUP, calcTableNameUsergroup(app));
             int numRows = execute(SQL, UsergroupBoMapper.valuesForCreate(usergroup));
             invalidate(app, usergroup, true);
-            return numRows > 0;
+            return numRows > 0 ? UpasConstants.DAO_RESULT_OK
+                    : UpasConstants.DAO_RESULT_NOT_AFFECTED;
+        } catch (DuplicateKeyException dke) {
+            return UpasConstants.DAO_RESULT_DUPLICATED;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -612,7 +620,8 @@ public class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
             try {
                 String SQL = MessageFormat.format(SQL_GET_ALL_USERGROUP_IDS,
                         calcTableNameUsergroup(app));
-                List<Map<String, Object>> dbRows = executeSelect(SQL, new Object[] { app.getId() });
+                List<Map<String, Object>> dbRows = executeSelect(SQL,
+                        ArrayUtils.EMPTY_OBJECT_ARRAY);
                 for (Map<String, Object> dbRow : dbRows) {
                     String id = DPathUtils.getValue(dbRow, UsergroupBoMapper.COL_ID, String.class);
                     if (!StringUtils.isBlank(id)) {
@@ -790,4 +799,84 @@ public class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
     }
 
     /*----------------------------------------------------------------------*/
+    private String SQL_GET_USER_ROLES = "SELECT " + UserRoleBoMapper.COL_GID + " FROM {0} WHERE "
+            + UserRoleBoMapper.COL_UID + "=? ORDER BY " + UserRoleBoMapper.COL_GID;
+
+    private String SQL_GET_USERGROUP_PERMISSIONS = "SELECT " + UsergroupPermBoMapper.COL_PID
+            + " FROM {0} WHERE " + UsergroupPermBoMapper.COL_GID + "=? ORDER BY "
+            + UsergroupPermBoMapper.COL_PID;
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public Set<UsergroupBo> getUserRoles(AppBo app, UserBo user) {
+        final String cacheKey = cacheKeyUserRoles(app, user);
+        List<String> usergroupIds = getFromCache(cacheNameUser, cacheKey, List.class);
+        if (usergroupIds == null) {
+            usergroupIds = new ArrayList<>();
+            try {
+                String SQL = MessageFormat.format(SQL_GET_USER_ROLES, calcTableNameUserRole(app));
+                List<Map<String, Object>> dbRows = executeSelect(SQL,
+                        new Object[] { user.getId() });
+                for (Map<String, Object> dbRow : dbRows) {
+                    String id = DPathUtils.getValue(dbRow, UserRoleBoMapper.COL_GID, String.class);
+                    if (!StringUtils.isBlank(id)) {
+                        usergroupIds.add(id);
+                    }
+                }
+                putToCache(cacheNameUser, cacheKey, usergroupIds);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        Set<UsergroupBo> result = new HashSet<>();
+        for (String usergroupId : usergroupIds) {
+            UsergroupBo usergroup = getUsergroup(app, usergroupId);
+            if (usergroup != null) {
+                result.add(usergroup);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public Set<PermissionBo> getUsergroupPermissions(AppBo app, UsergroupBo usergroup) {
+        final String cacheKey = cacheKeyUsergroupPermissions(app, usergroup);
+        List<String> permIds = getFromCache(cacheNameUsergroup, cacheKey, List.class);
+        if (permIds == null) {
+            permIds = new ArrayList<>();
+            try {
+                String SQL = MessageFormat.format(SQL_GET_USERGROUP_PERMISSIONS,
+                        calcTableNameUsergroupPerm(app));
+                List<Map<String, Object>> dbRows = executeSelect(SQL,
+                        new Object[] { usergroup.getId() });
+                for (Map<String, Object> dbRow : dbRows) {
+                    String id = DPathUtils.getValue(dbRow, UsergroupPermBoMapper.COL_PID,
+                            String.class);
+                    if (!StringUtils.isBlank(id)) {
+                        permIds.add(id);
+                    }
+                }
+                putToCache(cacheNameUsergroup, cacheKey, permIds);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        Set<PermissionBo> result = new HashSet<>();
+        for (String permId : permIds) {
+            PermissionBo perm = getPermission(app, permId);
+            if (perm != null) {
+                result.add(perm);
+            }
+        }
+        return result;
+    }
 }

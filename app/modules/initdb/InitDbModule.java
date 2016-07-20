@@ -16,7 +16,7 @@ import play.api.Environment;
 import play.api.inject.Binding;
 import play.api.inject.Module;
 import scala.collection.Seq;
-import utils.PngConstants;
+import utils.UpasConstants;
 import utils.UserUtils;
 
 public class InitDbModule extends Module {
@@ -42,7 +42,7 @@ public class InitDbModule extends Module {
                     password = "admin@localhost";
                 }
                 admin = UserBo.newInstance(username, UserUtils.encryptPassword(id, password), email)
-                        .setId(id).setGroupId(PngConstants.GROUP_ADMIN);
+                        .setId(id).setGroupId(UpasConstants.GROUP_ADMIN);
                 userDao.create(admin);
             }
         }

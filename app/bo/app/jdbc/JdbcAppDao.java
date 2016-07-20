@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.DuplicateKeyException;
 
 import com.github.ddth.commons.utils.DPathUtils;
 import com.github.ddth.dao.jdbc.BaseJdbcDao;
@@ -105,6 +106,8 @@ public class JdbcAppDao extends BaseJdbcDao implements IAppDao {
             int numRows = execute(SQL_CREATE_APP, AppBoMapper.valuesForCreate(app));
             invalidate(app, true);
             return numRows > 0;
+        } catch (DuplicateKeyException dke) {
+            return true;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
