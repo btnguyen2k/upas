@@ -39,7 +39,7 @@ public class AdminAuthRequiredAction extends Action<AdminAuthRequired> {
         }
         try {
             return delegate.call(context);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return CompletableFuture.supplyAsync(new Supplier<Result>() {
                 @Override
                 public Result get() {

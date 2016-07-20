@@ -1,7 +1,5 @@
 package modules.registry;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +7,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import bo.app.IAppDao;
@@ -17,12 +14,7 @@ import bo.user.IUserDao;
 import forms.FormCreateEditApplication;
 import forms.FormLogin;
 import play.data.validation.ValidationError;
-import play.mvc.Controller;
-import play.mvc.Http.MultipartFormData;
-import play.mvc.Http.MultipartFormData.FilePart;
-import play.mvc.Http.RequestBody;
-import utils.UpasConstants;
-import utils.PngGlobals;
+import utils.UpasGlobals;
 import utils.UserUtils;
 
 @Singleton
@@ -32,7 +24,7 @@ public class FormValidatorImpl implements IFormValidator {
 
     @Inject
     public FormValidatorImpl(Provider<IRegistry> registry) {
-        PngGlobals.formValidator = this;
+        UpasGlobals.formValidator = this;
 
         this.registry = registry;
     }
@@ -87,33 +79,12 @@ public class FormValidatorImpl implements IFormValidator {
             errors.add(new ValidationError("apiKey", "error.app.empty_api_key||"));
         }
 
-        RequestBody rBody = Controller.request().body();
-        MultipartFormData<File> mpartData = rBody != null ? rBody.asMultipartFormData() : null;
-        FilePart<File> p12FilePart = mpartData != null ? mpartData.getFile("iOSP12File") : null;
-        if (p12FilePart != null) {
-            File file = p12FilePart.getFile();
-            long fileSize = file.length();
-            if (fileSize > UpasConstants.MAX_IOS_P12_FILE_SIZE) {
-                errors.add(new ValidationError("iOSP12File", "error.app.invalid_ios_p12_file||"
-                        + fileSize + "||" + UpasConstants.MAX_IOS_P12_FILE_SIZE));
-            } else {
-                if (fileSize > 0) {
-                    try {
-                        form.iOSP12Content = FileUtils.readFileToByteArray(file);
-                    } catch (IOException e) {
-                        errors.add(new ValidationError("iOSP12File", e.getMessage()));
-                    }
-                }
-            }
-        }
-
         if (!errors.isEmpty()) {
             return errors;
         }
 
         form.id = id;
         form.apiKey = apiKey;
-        form.iOSP12Password = form.iOSP12Password != null ? form.iOSP12Password.trim() : "";
 
         return errors.isEmpty() ? null : errors;
     }

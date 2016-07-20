@@ -33,8 +33,8 @@ public class ApiAuthRequiredAction extends Action<AdminAuthRequired> {
     public CompletionStage<Result> call(Context context) {
         Map<String, String> headers = PngUtils.parseRequestHeaders(context.request(),
                 ApiController.HEADER_APP_ID, ApiController.HEADER_API_KEY);
-        String appId = headers.get(ApiController.HEADER_APP_ID);
-        String apiKey = headers.get(ApiController.HEADER_API_KEY);
+        final String appId = headers.get(ApiController.HEADER_APP_ID);
+        final String apiKey = headers.get(ApiController.HEADER_API_KEY);
 
         if (Logger.isDebugEnabled()) {
             String clientIp = PngUtils.getClientIp(context.request());

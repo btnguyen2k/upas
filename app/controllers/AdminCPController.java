@@ -132,11 +132,8 @@ public class AdminCPController extends BaseController {
 
         FormCreateEditApplication model = form.get();
         AppBo app = AppBo.newInstance();
-        app.setId(model.id).setApiKey(model.apiKey).setIOSP12Password(model.iOSP12Password);
+        app.setId(model.id).setApiKey(model.apiKey);
         app.setDisabled(model.isDisabled);
-        if (model.iOSP12Content != null) {
-            app.setIOSP12Content(model.iOSP12Content);
-        }
         IAppDao appDao = registry.get().getAppDao();
         appDao.create(app);
 
@@ -184,11 +181,8 @@ public class AdminCPController extends BaseController {
         }
 
         FormCreateEditApplication model = form.get();
-        app.setApiKey(model.apiKey).setIOSP12Password(model.iOSP12Password);
+        app.setApiKey(model.apiKey);
         app.setDisabled(model.isDisabled);
-        if (model.iOSP12Content != null) {
-            app.setIOSP12Content(model.iOSP12Content);
-        }
         appDao.update(app);
 
         flash(VIEW_APPLICATION_LIST, calcMessages().at("msg.app.edit.done", app.getId()));

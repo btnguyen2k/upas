@@ -9,20 +9,20 @@ public class AppBo extends BaseBo {
 
     public final static AppBo[] EMPTY_ARRAY = new AppBo[0];
 
-    public final static AppBo newInstance() {
+    public static AppBo newInstance() {
         Date now = new Date();
         AppBo bo = new AppBo();
         bo.setTimestampCreate(now).setTimestampUpdate(now);
         return bo;
     }
 
-    public final static AppBo newInstance(String id) {
+    public static AppBo newInstance(String id) {
         AppBo bo = newInstance();
         bo.setId(id);
         return bo;
     }
 
-    public final static AppBo newInstance(AppBo another) {
+    public static AppBo newInstance(AppBo another) {
         AppBo bo = newInstance();
         bo.fromMap(another.toMap());
         return bo;

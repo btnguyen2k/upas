@@ -132,7 +132,7 @@ public class PngUtils {
      * @return
      */
     public static int countApplications() {
-        return PngGlobals.registry.getAppDao().getAllAppIds().length;
+        return UpasGlobals.registry.getAppDao().getAllAppIds().length;
     }
 
     public static Date extractTimestamp(String id128Hex) {

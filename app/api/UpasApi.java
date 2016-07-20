@@ -7,7 +7,7 @@ import bo.upas.IUpasDao;
 import bo.upas.PermissionBo;
 import bo.upas.UserBo;
 import bo.upas.UsergroupBo;
-import utils.PngGlobals;
+import utils.UpasGlobals;
 import utils.UpasConstants;
 
 /**
@@ -25,7 +25,7 @@ public class UpasApi {
      * @return
      */
     public PermissionBo addPermission(AppBo app, String id, String title, String description) {
-        IUpasDao upasDao = PngGlobals.registry.getUpasDao();
+        IUpasDao upasDao = UpasGlobals.registry.getUpasDao();
         PermissionBo bo = PermissionBo.newInstance(id, title, description);
         int result = upasDao.create(app, bo);
         switch (result) {
@@ -45,7 +45,7 @@ public class UpasApi {
      * @param perm
      */
     public void remove(AppBo app, PermissionBo perm) {
-        IUpasDao upasDao = PngGlobals.registry.getUpasDao();
+        IUpasDao upasDao = UpasGlobals.registry.getUpasDao();
         upasDao.delete(app, perm);
     }
 
@@ -69,7 +69,7 @@ public class UpasApi {
      * @return
      */
     public UserBo createUser(AppBo app, String id, Map<String, Object> data) {
-        IUpasDao upasDao = PngGlobals.registry.getUpasDao();
+        IUpasDao upasDao = UpasGlobals.registry.getUpasDao();
         UserBo bo = UserBo.newInstance(id, data);
         int result = upasDao.create(app, bo);
         switch (result) {
@@ -89,7 +89,7 @@ public class UpasApi {
      * @param user
      */
     public void remove(AppBo app, UserBo user) {
-        IUpasDao upasDao = PngGlobals.registry.getUpasDao();
+        IUpasDao upasDao = UpasGlobals.registry.getUpasDao();
         upasDao.delete(app, user);
     }
 
@@ -108,7 +108,7 @@ public class UpasApi {
 
     public UsergroupBo createUsergroup(AppBo app, String id, boolean isGod, String title,
             String description) {
-        IUpasDao upasDao = PngGlobals.registry.getUpasDao();
+        IUpasDao upasDao = UpasGlobals.registry.getUpasDao();
         UsergroupBo bo = UsergroupBo.newInstance(id, isGod, title, description);
         int result = upasDao.create(app, bo);
         switch (result) {
@@ -128,7 +128,7 @@ public class UpasApi {
      * @param usergroup
      */
     public void remove(AppBo app, UsergroupBo usergroup) {
-        IUpasDao upasDao = PngGlobals.registry.getUpasDao();
+        IUpasDao upasDao = UpasGlobals.registry.getUpasDao();
         upasDao.delete(app, usergroup);
     }
 }

@@ -24,11 +24,6 @@ public class AppModel extends AppBo {
         return newInstances(boList.toArray(AppBo.EMPTY_ARRAY));
     }
 
-    public long getIOSP12FileSize() {
-        byte[] data = getIOSP12ContentRaw();
-        return data != null ? data.length : 0;
-    }
-
     public String urlEdit() {
         return routes.AdminCPController.editApplication(getId()).url();
     }

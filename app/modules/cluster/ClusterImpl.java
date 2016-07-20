@@ -16,7 +16,6 @@ import akka.actor.ActorSystem;
 import akka.cluster.Cluster;
 import akka.utils.AkkaConstants;
 import modules.cluster.workers.AppEventThread;
-import modules.cluster.workers.PushNotificationThread;
 import modules.registry.IRegistry;
 import play.Logger;
 import play.inject.ApplicationLifecycle;
@@ -30,16 +29,10 @@ public class ClusterImpl implements ICluster {
     private Provider<IRegistry> registry;
 
     private AppEventThread appEventThread;
-    private PushNotificationThread pushNotificationThread;
 
     private void initFrontendThreads() {
         appEventThread = new AppEventThread(registry.get());
         appEventThread.start();
-    }
-
-    private void initBackendThreads() {
-        pushNotificationThread = new PushNotificationThread(registry.get());
-        pushNotificationThread.start();
     }
 
     private void init() {
@@ -54,9 +47,6 @@ public class ClusterImpl implements ICluster {
         if (selfRoles != null && selfRoles.contains(AkkaConstants.ROLE_FRONTEND)) {
             initFrontendThreads();
         }
-        if (selfRoles != null && selfRoles.contains(AkkaConstants.ROLE_BACKEND)) {
-            initBackendThreads();
-        }
     }
 
     private void destroy() {
@@ -64,15 +54,6 @@ public class ClusterImpl implements ICluster {
             if (appEventThread != null) {
                 appEventThread.stopThread();
                 appEventThread = null;
-            }
-        } catch (Exception e) {
-            Logger.warn(e.getMessage(), e);
-        }
-
-        try {
-            if (pushNotificationThread != null) {
-                pushNotificationThread.stopThread();
-                pushNotificationThread = null;
             }
         } catch (Exception e) {
             Logger.warn(e.getMessage(), e);

@@ -32,7 +32,7 @@ import play.Application;
 import play.Logger;
 import play.inject.ApplicationLifecycle;
 import utils.NetworkUtils;
-import utils.PngGlobals;
+import utils.UpasGlobals;
 
 @Singleton
 public class RegistryImpl implements IRegistry {
@@ -48,8 +48,8 @@ public class RegistryImpl implements IRegistry {
     @Inject
     public RegistryImpl(ApplicationLifecycle lifecycle, Application playApp,
             ActorSystem actorSystem) {
-        PngGlobals.registry = this;
-        PngGlobals.appConfig = playApp.configuration();
+        UpasGlobals.registry = this;
+        UpasGlobals.appConfig = playApp.configuration();
         this.playApp = playApp;
         this.actorSystem = actorSystem;
 

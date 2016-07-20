@@ -4,7 +4,7 @@ import java.util.List;
 
 import bo.user.UserBo;
 import play.data.validation.ValidationError;
-import utils.PngGlobals;
+import utils.UpasGlobals;
 
 public class FormLogin extends BaseForm {
 
@@ -28,7 +28,7 @@ public class FormLogin extends BaseForm {
     }
 
     public List<ValidationError> validate() throws Exception {
-        return PngGlobals.formValidator.validate(this);
+        return UpasGlobals.formValidator.validate(this);
     }
 
 }
