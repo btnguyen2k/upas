@@ -21,8 +21,8 @@ import bo.user.UserBo;
  */
 public class JdbcUserDao extends BaseJdbcDao implements IUserDao {
 
-    private String tableNameUser = "png_user";
-    private String cacheNameUser = "PNG_USER";
+    private String tableNameUser = "upas_user";
+    private String cacheNameUser = "UPAS_USER";
 
     protected String getTableNameUser() {
         return tableNameUser;

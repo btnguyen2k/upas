@@ -14,23 +14,14 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.github.ddth.commons.utils.DPathUtils;
 import com.github.ddth.commons.utils.IdGenerator;
 import com.github.ddth.commons.utils.SerializationUtils;
-import com.github.ddth.queue.IQueue;
-import com.github.ddth.queue.impl.universal.UniversalQueueMessage;
 
-import bo.pushtoken.PushTokenBo;
-import controllers.ApiController;
 import play.Logger;
 import play.mvc.Http.Request;
 import queue.message.BaseMessage;
-import queue.message.DeletePushNotificationMessage;
-import queue.message.DeliverPushNotificationMessage;
-import queue.message.SendPushNotificationsMessage;
-import queue.message.UpdatePushNotificationMessage;
 
-public class PngUtils {
+public class UpasUtils {
 
     public final static IdGenerator IDGEN = IdGenerator.getInstance(IdGenerator.getMacAddr());
 
@@ -76,30 +67,6 @@ public class PngUtils {
             }
         }
         return tags;
-    }
-
-    public static Collection<SendPushNotificationsMessage.Target> parseTargets(
-            List<Map<String, Object>> targetsData) {
-        if (targetsData == null || targetsData.size() == 0) {
-            return null;
-        }
-        Collection<SendPushNotificationsMessage.Target> result = new HashSet<>();
-        for (Map<String, Object> item : targetsData) {
-            String token = DPathUtils.getValue(item, ApiController.PARAM_TOKEN, String.class);
-            String os = DPathUtils.getValue(item, ApiController.PARAM_OS, String.class);
-            Collection<String> tags = parseTags(
-                    DPathUtils.getValue(item, ApiController.PARAM_TAGS));
-            SendPushNotificationsMessage.Target target = null;
-            if (tags != null && tags.size() > 0) {
-                target = SendPushNotificationsMessage.Target.newInstance(tags);
-            } else {
-                target = SendPushNotificationsMessage.Target.newInstance(token, os);
-            }
-            if (target != null) {
-                result.add(target);
-            }
-        }
-        return result;
     }
 
     public static Map<String, String> parseRequestHeaders(Request request) {
@@ -155,39 +122,4 @@ public class PngUtils {
         return SerializationUtils.fromByteArray(data, clazz);
     }
 
-    public static boolean queuePushNotificationsSend(IQueue queue, String appId, String title,
-            String content, Collection<SendPushNotificationsMessage.Target> targets) {
-        SendPushNotificationsMessage msg = SendPushNotificationsMessage.newInstance(appId, title,
-                content, targets);
-        UniversalQueueMessage queueMsg = UniversalQueueMessage.newInstance();
-        queueMsg.content(toBytes(msg));
-        return queue.queue(queueMsg);
-    }
-
-    public static boolean queuePushNotificationDelivery(IQueue queue, String appId, String title,
-            String content, PushTokenBo[] pushTokens) {
-        DeliverPushNotificationMessage msg = DeliverPushNotificationMessage.newInstance(appId,
-                title, content, pushTokens);
-        UniversalQueueMessage queueMsg = UniversalQueueMessage.newInstance();
-        queueMsg.content(toBytes(msg));
-        return queue.queue(queueMsg);
-    }
-
-    public static boolean queuePushTokenDelete(IQueue queue, String appId, String token,
-            String os) {
-        DeletePushNotificationMessage msg = DeletePushNotificationMessage.newInstance(appId, token,
-                os);
-        UniversalQueueMessage queueMsg = UniversalQueueMessage.newInstance();
-        queueMsg.content(toBytes(msg));
-        return queue.queue(queueMsg);
-    }
-
-    public static boolean queuePushTokenUpdate(IQueue queue, String appId, String token, String os,
-            Collection<String> tags) {
-        UpdatePushNotificationMessage msg = UpdatePushNotificationMessage.newInstance(appId, token,
-                os, tags);
-        UniversalQueueMessage queueMsg = UniversalQueueMessage.newInstance();
-        queueMsg.content(toBytes(msg));
-        return queue.queue(queueMsg);
-    }
 }

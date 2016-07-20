@@ -21,8 +21,8 @@ import play.Logger;
 import play.mvc.Action;
 import play.mvc.Http.Context;
 import play.mvc.Result;
+import utils.UpasUtils;
 import utils.UpasConstants;
-import utils.PngUtils;
 
 public class ApiAuthRequiredAction extends Action<AdminAuthRequired> {
 
@@ -31,13 +31,13 @@ public class ApiAuthRequiredAction extends Action<AdminAuthRequired> {
 
     @Override
     public CompletionStage<Result> call(Context context) {
-        Map<String, String> headers = PngUtils.parseRequestHeaders(context.request(),
+        Map<String, String> headers = UpasUtils.parseRequestHeaders(context.request(),
                 ApiController.HEADER_APP_ID, ApiController.HEADER_API_KEY);
         final String appId = headers.get(ApiController.HEADER_APP_ID);
         final String apiKey = headers.get(ApiController.HEADER_API_KEY);
 
         if (Logger.isDebugEnabled()) {
-            String clientIp = PngUtils.getClientIp(context.request());
+            String clientIp = UpasUtils.getClientIp(context.request());
             Logger.debug("Request [" + context.request().uri() + "] from [" + clientIp
                     + "], headers: " + headers);
         }

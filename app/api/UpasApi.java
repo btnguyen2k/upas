@@ -7,8 +7,8 @@ import bo.upas.IUpasDao;
 import bo.upas.PermissionBo;
 import bo.upas.UserBo;
 import bo.upas.UsergroupBo;
-import utils.UpasGlobals;
 import utils.UpasConstants;
+import utils.UpasGlobals;
 
 /**
  * @author Thanh Nguyen <btnguyen2k@gmail.com>

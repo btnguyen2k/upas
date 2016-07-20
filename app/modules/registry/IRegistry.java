@@ -5,7 +5,6 @@ import com.github.ddth.queue.IQueue;
 import akka.actor.ActorSystem;
 import akka.cluster.Member;
 import bo.app.IAppDao;
-import bo.pushtoken.IPushTokenDao;
 import bo.upas.IUpasDao;
 import bo.user.IUserDao;
 import play.Application;
@@ -75,13 +74,6 @@ public interface IRegistry {
      * @return
      */
     public IAppDao getAppDao();
-
-    /**
-     * Gets {@link IPushTokenDao} instance.
-     * 
-     * @return
-     */
-    public IPushTokenDao getPushTokenDao();
 
     /**
      * Gets {@link IUserDao} instance.

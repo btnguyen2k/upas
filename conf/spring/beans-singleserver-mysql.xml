@@ -27,6 +27,8 @@
 		<constructor-arg value="" />
 	</bean>
 
+	<bean id="UPAS_API" class="api.UpasApi"></bean>
+
 	<bean id="CACHE_FACTORY" class="com.github.ddth.cacheadapter.guava.GuavaCacheFactory"
 		scope="singleton" init-method="init" destroy-method="destroy">
 		<property name="cloneCacheEntries" value="true" />
@@ -57,13 +59,13 @@
 		<property name="dataSource" ref="DATASOURCE" />
 	</bean>
 
-	<bean id="DAO_PUSHTOKEN" class="bo.pushtoken.jdbc.JdbcPushTokenDao"
-		scope="singleton" init-method="init" destroy-method="destroy">
+	<bean id="DAO_USER" class="bo.user.jdbc.JdbcUserDao" scope="singleton"
+		init-method="init" destroy-method="destroy">
 		<property name="cacheFactory" ref="CACHE_FACTORY" />
 		<property name="dataSource" ref="DATASOURCE" />
 	</bean>
 
-	<bean id="DAO_USER" class="bo.user.jdbc.JdbcUserDao" scope="singleton"
+	<bean id="DAO_UPAS" class="bo.upas.jdbc.MySqlUpasDao" scope="singleton"
 		init-method="init" destroy-method="destroy">
 		<property name="cacheFactory" ref="CACHE_FACTORY" />
 		<property name="dataSource" ref="DATASOURCE" />
@@ -75,14 +77,6 @@
 		<property name="dataSource" ref="DATASOURCE" />
 		<property name="tableName" value="queue_appevent" />
 		<property name="tableNameEphemeral" value="queue_appevent_ephemeral" />
-	</bean>
-
-	<!-- Queue to buffer push notifications -->
-	<bean id="QUEUE_PUSH_NOTIFICATION" class="com.github.ddth.queue.impl.universal.UniversalJdbcQueue"
-		scope="singleton" init-method="init" destroy-method="destroy">
-		<property name="dataSource" ref="DATASOURCE" />
-		<property name="tableName" value="queue_pushnotification" />
-		<property name="tableNameEphemeral" value="queue_pushnotification_ephemeral" />
 	</bean>
 
 	<!-- beans for development env -->

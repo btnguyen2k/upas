@@ -25,7 +25,6 @@ import com.github.ddth.queue.IQueue;
 import akka.actor.ActorSystem;
 import akka.cluster.Member;
 import bo.app.IAppDao;
-import bo.pushtoken.IPushTokenDao;
 import bo.upas.IUpasDao;
 import bo.user.IUserDao;
 import play.Application;
@@ -229,14 +228,6 @@ public class RegistryImpl implements IRegistry {
     @Override
     public IAppDao getAppDao() {
         return appContext.getBean(IAppDao.class);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public IPushTokenDao getPushTokenDao() {
-        return appContext.getBean(IPushTokenDao.class);
     }
 
     /**

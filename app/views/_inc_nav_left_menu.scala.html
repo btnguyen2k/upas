@@ -31,7 +31,7 @@
             <li @if(active=="app_list"){class="active"}>
                 <a href="@routes.AdminCPController.applicationList()">
                     <i class="fa fa-building"></i> @messages.at("msg.applications")
-                    <span class="label @if(PngUtils.countApplications()>0){label-primary}else{label-grey} pull-right">@PngUtils.countApplications()</span>
+                    <span class="label @if(UpasUtils.countApplications()>0){label-primary}else{label-grey} pull-right">@UpasUtils.countApplications()</span>
                 </a>
             </li>
 
