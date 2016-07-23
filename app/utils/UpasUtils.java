@@ -16,9 +16,14 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.github.ddth.commons.utils.IdGenerator;
 import com.github.ddth.commons.utils.SerializationUtils;
+import com.github.ddth.queue.IQueue;
+import com.github.ddth.queue.impl.universal.UniversalQueueMessage;
 
 import play.Logger;
 import play.mvc.Http.Request;
+import queue.message.AddPermissionMessage;
+import queue.message.AddUserMessage;
+import queue.message.AddUsergroupMessage;
 import queue.message.BaseMessage;
 
 public class UpasUtils {
@@ -120,6 +125,30 @@ public class UpasUtils {
 
     public static <T extends BaseMessage> T fromBytes(byte[] data, Class<T> clazz) {
         return SerializationUtils.fromByteArray(data, clazz);
+    }
+
+    public static boolean queueAddPermission(IQueue queue, String appId, String id, String title,
+            String desc) {
+        AddPermissionMessage msg = AddPermissionMessage.newInstance(appId, id, title, desc);
+        UniversalQueueMessage queueMsg = UniversalQueueMessage.newInstance();
+        queueMsg.content(toBytes(msg));
+        return queue.queue(queueMsg);
+    }
+
+    public static boolean queueAddUser(IQueue queue, String appId, String id,
+            Map<String, Object> data) {
+        AddUserMessage msg = AddUserMessage.newInstance(appId, id, data);
+        UniversalQueueMessage queueMsg = UniversalQueueMessage.newInstance();
+        queueMsg.content(toBytes(msg));
+        return queue.queue(queueMsg);
+    }
+
+    public static boolean queueAddUsergroup(IQueue queue, String appId, String id, Boolean isGod,
+            String title, String desc) {
+        AddUsergroupMessage msg = AddUsergroupMessage.newInstance(appId, id, isGod, title, desc);
+        UniversalQueueMessage queueMsg = UniversalQueueMessage.newInstance();
+        queueMsg.content(toBytes(msg));
+        return queue.queue(queueMsg);
     }
 
 }
