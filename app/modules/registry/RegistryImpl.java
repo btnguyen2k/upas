@@ -24,6 +24,7 @@ import com.github.ddth.queue.IQueue;
 
 import akka.actor.ActorSystem;
 import akka.cluster.Member;
+import api.UpasApi;
 import bo.app.IAppDao;
 import bo.upas.IUpasDao;
 import bo.user.IUserDao;
@@ -261,4 +262,13 @@ public class RegistryImpl implements IRegistry {
     public IQueue getQueuePushNotifications() {
         return appContext.getBean("QUEUE_PUSH_NOTIFICATION", IQueue.class);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public UpasApi getUpasApi() {
+        return appContext.getBean(UpasApi.class);
+    }
+
 }

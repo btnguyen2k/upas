@@ -25,6 +25,9 @@ import queue.message.AddPermissionMessage;
 import queue.message.AddUserMessage;
 import queue.message.AddUsergroupMessage;
 import queue.message.BaseMessage;
+import queue.message.RemovePermissionMessage;
+import queue.message.RemoveUserMessage;
+import queue.message.RemoveUsergroupMessage;
 
 public class UpasUtils {
 
@@ -135,6 +138,13 @@ public class UpasUtils {
         return queue.queue(queueMsg);
     }
 
+    public static boolean queueRemovePermission(IQueue queue, String appId, String id) {
+        RemovePermissionMessage msg = RemovePermissionMessage.newInstance(appId, id);
+        UniversalQueueMessage queueMsg = UniversalQueueMessage.newInstance();
+        queueMsg.content(toBytes(msg));
+        return queue.queue(queueMsg);
+    }
+
     public static boolean queueAddUser(IQueue queue, String appId, String id,
             Map<String, Object> data) {
         AddUserMessage msg = AddUserMessage.newInstance(appId, id, data);
@@ -143,9 +153,23 @@ public class UpasUtils {
         return queue.queue(queueMsg);
     }
 
+    public static boolean queueRemoveUser(IQueue queue, String appId, String id) {
+        RemoveUserMessage msg = RemoveUserMessage.newInstance(appId, id);
+        UniversalQueueMessage queueMsg = UniversalQueueMessage.newInstance();
+        queueMsg.content(toBytes(msg));
+        return queue.queue(queueMsg);
+    }
+
     public static boolean queueAddUsergroup(IQueue queue, String appId, String id, Boolean isGod,
             String title, String desc) {
         AddUsergroupMessage msg = AddUsergroupMessage.newInstance(appId, id, isGod, title, desc);
+        UniversalQueueMessage queueMsg = UniversalQueueMessage.newInstance();
+        queueMsg.content(toBytes(msg));
+        return queue.queue(queueMsg);
+    }
+
+    public static boolean queueRemoveUsergroup(IQueue queue, String appId, String id) {
+        RemoveUsergroupMessage msg = RemoveUsergroupMessage.newInstance(appId, id);
         UniversalQueueMessage queueMsg = UniversalQueueMessage.newInstance();
         queueMsg.content(toBytes(msg));
         return queue.queue(queueMsg);

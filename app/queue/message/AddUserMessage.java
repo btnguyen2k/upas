@@ -19,6 +19,7 @@ public class AddUserMessage extends BaseMessage {
 
     public static AddUserMessage newInstance(String appId, String id, Map<String, Object> data) {
         AddUserMessage bo = newInstance();
+        bo.setAppId(appId);
         bo.setId(id).setDataMap(data);
         return bo;
     }

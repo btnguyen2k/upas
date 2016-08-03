@@ -4,6 +4,7 @@ import com.github.ddth.queue.IQueue;
 
 import akka.actor.ActorSystem;
 import akka.cluster.Member;
+import api.UpasApi;
 import bo.app.IAppDao;
 import bo.upas.IUpasDao;
 import bo.user.IUserDao;
@@ -102,5 +103,12 @@ public interface IRegistry {
      * @return
      */
     public IQueue getQueuePushNotifications();
+
+    /**
+     * Gets {@link UpasApi} instance.
+     * 
+     * @return
+     */
+    public UpasApi getUpasApi();
 
 }

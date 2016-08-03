@@ -10,14 +10,4 @@ public class AkkaConstants {
      * </ul>
      */
     public final static String ROLE_FRONTEND = "frontend";
-
-    /**
-     * Cluster node: backend.
-     * 
-     * <ul>
-     * <li>Processes messages in push-notification queue & pushes notifications.
-     * </li>
-     * </ul>
-     */
-    public final static String ROLE_BACKEND = "backend";
 }

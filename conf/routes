@@ -20,11 +20,12 @@ POST    /cp/editApp                             controllers.AdminCPController.ed
 GET     /cp/deleteApp                           controllers.AdminCPController.deleteApplication(id: String)
 POST    /cp/deleteApp                           controllers.AdminCPController.deleteApplicationSubmit(id: String)
 
-#POST    /api/addToken                           controllers.ApiController.apiAddToken()
-#GET     /api/getToken                           controllers.ApiController.apiGetTokenGet()
-#POST    /api/getToken                           controllers.ApiController.apiGetTokenPost()
-#POST    /api/deleteToken                        controllers.ApiController.apiDeleteToken()
-#POST    /api/pushNotifications                  controllers.ApiController.apiPushNotifications()
+POST    /api/addPermission                      controllers.ApiController.apiAddPermission()
+POST    /api/removePermission                   controllers.ApiController.apiRemovePermission()
+POST    /api/addUser                            controllers.ApiController.apiAddUser()
+POST    /api/removeUser                         controllers.ApiController.apiRemoveUser()
+POST    /api/addUsergroup                       controllers.ApiController.apiAddUsergroup()
+POST    /api/removeUsergroup                    controllers.ApiController.apiRemoveUsergroup()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                           controllers.Assets.versioned(path="/public", file: Asset)

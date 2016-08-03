@@ -16,6 +16,7 @@ public class AddUsergroupMessage extends BaseMessage {
     public static AddUsergroupMessage newInstance(String appId, String id, Boolean isGod,
             String title, String desc) {
         AddUsergroupMessage bo = newInstance();
+        bo.setAppId(appId);
         bo.setId(id).setIsGod(isGod).setTitle(title).setDescription(desc);
         return bo;
     }

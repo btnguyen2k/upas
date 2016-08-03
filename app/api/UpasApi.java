@@ -8,13 +8,32 @@ import bo.upas.PermissionBo;
 import bo.upas.UserBo;
 import bo.upas.UsergroupBo;
 import utils.UpasConstants;
-import utils.UpasGlobals;
 
 /**
  * @author Thanh Nguyen <btnguyen2k@gmail.com>
  * @since 0.1.0
  */
 public class UpasApi {
+
+    private IUpasDao upasDao;
+
+    public UpasApi init() {
+        return this;
+    }
+
+    public void destroy() {
+        // EMPTY
+    }
+
+    public IUpasDao getUpasDao() {
+        return upasDao;
+    }
+
+    public UpasApi setUpasDao(IUpasDao upasDao) {
+        this.upasDao = upasDao;
+        return this;
+    }
+
     /**
      * Creates or Updates an app permission.
      * 
@@ -25,7 +44,6 @@ public class UpasApi {
      * @return
      */
     public PermissionBo addPermission(AppBo app, String id, String title, String description) {
-        IUpasDao upasDao = UpasGlobals.registry.getUpasDao();
         PermissionBo bo = PermissionBo.newInstance(id, title, description);
         int result = upasDao.create(app, bo);
         switch (result) {
@@ -45,7 +63,6 @@ public class UpasApi {
      * @param perm
      */
     public void remove(AppBo app, PermissionBo perm) {
-        IUpasDao upasDao = UpasGlobals.registry.getUpasDao();
         upasDao.delete(app, perm);
     }
 
@@ -56,8 +73,8 @@ public class UpasApi {
      * @param id
      * @return
      */
-    public UserBo createUser(AppBo app, String id) {
-        return createUser(app, id, null);
+    public UserBo addUser(AppBo app, String id) {
+        return addUser(app, id, null);
     }
 
     /**
@@ -68,8 +85,7 @@ public class UpasApi {
      * @param data
      * @return
      */
-    public UserBo createUser(AppBo app, String id, Map<String, Object> data) {
-        IUpasDao upasDao = UpasGlobals.registry.getUpasDao();
+    public UserBo addUser(AppBo app, String id, Map<String, Object> data) {
         UserBo bo = UserBo.newInstance(id, data);
         int result = upasDao.create(app, bo);
         switch (result) {
@@ -89,7 +105,6 @@ public class UpasApi {
      * @param user
      */
     public void remove(AppBo app, UserBo user) {
-        IUpasDao upasDao = UpasGlobals.registry.getUpasDao();
         upasDao.delete(app, user);
     }
 
@@ -102,13 +117,22 @@ public class UpasApi {
      * @param description
      * @return
      */
-    public UsergroupBo createUsergroup(AppBo app, String id, String title, String description) {
-        return createUsergroup(app, id, false, title, description);
+    public UsergroupBo addUsergroup(AppBo app, String id, String title, String description) {
+        return addUsergroup(app, id, false, title, description);
     }
 
-    public UsergroupBo createUsergroup(AppBo app, String id, boolean isGod, String title,
+    /**
+     * Creates or Updates an app usergroup.
+     * 
+     * @param app
+     * @param id
+     * @param isGod
+     * @param title
+     * @param description
+     * @return
+     */
+    public UsergroupBo addUsergroup(AppBo app, String id, boolean isGod, String title,
             String description) {
-        IUpasDao upasDao = UpasGlobals.registry.getUpasDao();
         UsergroupBo bo = UsergroupBo.newInstance(id, isGod, title, description);
         int result = upasDao.create(app, bo);
         switch (result) {
@@ -128,7 +152,6 @@ public class UpasApi {
      * @param usergroup
      */
     public void remove(AppBo app, UsergroupBo usergroup) {
-        IUpasDao upasDao = UpasGlobals.registry.getUpasDao();
         upasDao.delete(app, usergroup);
     }
 }

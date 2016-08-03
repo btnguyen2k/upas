@@ -15,6 +15,7 @@ public class AddPermissionMessage extends BaseMessage {
     public static AddPermissionMessage newInstance(String appId, String id, String title,
             String desc) {
         AddPermissionMessage bo = newInstance();
+        bo.setAppId(appId);
         bo.setId(id).setTitle(title).setDescription(desc);
         return bo;
     }

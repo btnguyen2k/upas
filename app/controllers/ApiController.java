@@ -125,6 +125,50 @@ public class ApiController extends BaseController {
     }
 
     /**
+     * Remove an existing app permission.
+     * 
+     * <p>
+     * Params:
+     * <ul>
+     * <li>{@code id}: (required) String, permission's unique id.</li>
+     * </ul>
+     * </p>
+     * 
+     * @return
+     */
+    @ApiAuthRequired
+    public Result apiRemovePermission() {
+        try {
+            Map<String, String> reqHeaders = UpasUtils.parseRequestHeaders(request(),
+                    HEADER_APP_ID);
+            String appId = reqHeaders.get(HEADER_APP_ID);
+
+            Map<String, Object> reqParams = parseRequestContent();
+            Result result = validateRequestParams(reqParams, PARAM_ID);
+            if (result != null) {
+                return result;
+            }
+            String id = DPathUtils.getValue(reqParams, PARAM_ID, String.class);
+
+            if (Logger.isDebugEnabled()) {
+                String clientIp = UpasUtils.getClientIp(request());
+                Logger.debug("Request [" + request().uri() + "] from [" + clientIp + "], params: "
+                        + reqParams);
+            }
+
+            IQueue queue = getRegistry().getQueueAppEvents();
+            if (UpasUtils.queueRemovePermission(queue, appId, id)) {
+                return doResponseJson(UpasConstants.RESPONSE_OK, "true", true);
+            } else {
+                Logger.warn("Cannot put remove-permission message to queue.");
+                return doResponseJson(UpasConstants.RESPONSE_OK, "false", false);
+            }
+        } catch (Exception e) {
+            return doResponseJson(UpasConstants.RESPONSE_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    /**
      * Adds/Updates an app user.
      * 
      * <p>
@@ -164,6 +208,50 @@ public class ApiController extends BaseController {
                 return doResponseJson(UpasConstants.RESPONSE_OK, "true", true);
             } else {
                 Logger.warn("Cannot put add-user message to queue.");
+                return doResponseJson(UpasConstants.RESPONSE_OK, "false", false);
+            }
+        } catch (Exception e) {
+            return doResponseJson(UpasConstants.RESPONSE_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    /**
+     * Remove an existing app user.
+     * 
+     * <p>
+     * Params:
+     * <ul>
+     * <li>{@code id}: (required) String, user's unique id.</li>
+     * </ul>
+     * </p>
+     * 
+     * @return
+     */
+    @ApiAuthRequired
+    public Result apiRemoveUser() {
+        try {
+            Map<String, String> reqHeaders = UpasUtils.parseRequestHeaders(request(),
+                    HEADER_APP_ID);
+            String appId = reqHeaders.get(HEADER_APP_ID);
+
+            Map<String, Object> reqParams = parseRequestContent();
+            Result result = validateRequestParams(reqParams, PARAM_ID);
+            if (result != null) {
+                return result;
+            }
+            String id = DPathUtils.getValue(reqParams, PARAM_ID, String.class);
+
+            if (Logger.isDebugEnabled()) {
+                String clientIp = UpasUtils.getClientIp(request());
+                Logger.debug("Request [" + request().uri() + "] from [" + clientIp + "], params: "
+                        + reqParams);
+            }
+
+            IQueue queue = getRegistry().getQueueAppEvents();
+            if (UpasUtils.queueRemoveUser(queue, appId, id)) {
+                return doResponseJson(UpasConstants.RESPONSE_OK, "true", true);
+            } else {
+                Logger.warn("Cannot put remove-user message to queue.");
                 return doResponseJson(UpasConstants.RESPONSE_OK, "false", false);
             }
         } catch (Exception e) {
@@ -214,6 +302,50 @@ public class ApiController extends BaseController {
                 return doResponseJson(UpasConstants.RESPONSE_OK, "true", true);
             } else {
                 Logger.warn("Cannot put add-permission message to queue.");
+                return doResponseJson(UpasConstants.RESPONSE_OK, "false", false);
+            }
+        } catch (Exception e) {
+            return doResponseJson(UpasConstants.RESPONSE_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    /**
+     * Remove an existing app usergroup.
+     * 
+     * <p>
+     * Params:
+     * <ul>
+     * <li>{@code id}: (required) String, usergroup's unique id.</li>
+     * </ul>
+     * </p>
+     * 
+     * @return
+     */
+    @ApiAuthRequired
+    public Result apiRemoveUsergroup() {
+        try {
+            Map<String, String> reqHeaders = UpasUtils.parseRequestHeaders(request(),
+                    HEADER_APP_ID);
+            String appId = reqHeaders.get(HEADER_APP_ID);
+
+            Map<String, Object> reqParams = parseRequestContent();
+            Result result = validateRequestParams(reqParams, PARAM_ID);
+            if (result != null) {
+                return result;
+            }
+            String id = DPathUtils.getValue(reqParams, PARAM_ID, String.class);
+
+            if (Logger.isDebugEnabled()) {
+                String clientIp = UpasUtils.getClientIp(request());
+                Logger.debug("Request [" + request().uri() + "] from [" + clientIp + "], params: "
+                        + reqParams);
+            }
+
+            IQueue queue = getRegistry().getQueueAppEvents();
+            if (UpasUtils.queueRemoveUsergroup(queue, appId, id)) {
+                return doResponseJson(UpasConstants.RESPONSE_OK, "true", true);
+            } else {
+                Logger.warn("Cannot put remove-usergroup message to queue.");
                 return doResponseJson(UpasConstants.RESPONSE_OK, "false", false);
             }
         } catch (Exception e) {

@@ -27,7 +27,10 @@
 		<constructor-arg value="" />
 	</bean>
 
-	<bean id="UPAS_API" class="api.UpasApi"></bean>
+	<bean id="UPAS_API" class="api.UpasApi" init-method="init"
+		destroy-method="destroy">
+		<property name="upasDao" ref="DAO_UPAS" />
+	</bean>
 
 	<bean id="CACHE_FACTORY" class="com.github.ddth.cacheadapter.guava.GuavaCacheFactory"
 		scope="singleton" init-method="init" destroy-method="destroy">
