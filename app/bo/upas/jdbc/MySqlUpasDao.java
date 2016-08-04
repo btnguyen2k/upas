@@ -80,4 +80,23 @@ public class MySqlUpasDao extends JdbcUpasDao {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void destroyApp(AppBo app) {
+        final String[] tablesToDelete = { calcTableNamePermission(app), calcTableNameUser(app),
+                calcTableNameUsergroup(app), calcTableNameUsergroupPerm(app),
+                calcTableNameUserRole(app) };
+        for (int i = 0; i < tablesToDelete.length; i++) {
+            final String SQL = "DROP TABLE " + tablesToDelete[i];
+            try {
+                execute(SQL, ArrayUtils.EMPTY_OBJECT_ARRAY);
+            } catch (Exception e) {
+                Logger.warn(e.getMessage(), e);
+            }
+
+        }
+    }
+
 }

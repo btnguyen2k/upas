@@ -7,10 +7,12 @@ import akka.actor.ActorRef;
 import akka.cluster.pubsub.DistributedPubSub;
 import bo.app.AppBo;
 import bo.app.IAppDao;
+import bo.upas.IUpasDao;
 import compositions.AdminAuthRequired;
 import forms.FormCreateEditApplication;
 import forms.FormLogin;
 import models.AppModel;
+import play.Logger;
 import play.data.Form;
 import play.mvc.Result;
 import play.twirl.api.Html;
@@ -134,11 +136,23 @@ public class AdminCPController extends BaseController {
         AppBo app = AppBo.newInstance();
         app.setId(model.id).setApiKey(model.apiKey);
         app.setDisabled(model.isDisabled);
+
         IAppDao appDao = registry.get().getAppDao();
-        appDao.create(app);
-
-        flash(VIEW_APPLICATION_LIST, calcMessages().at("msg.app.create.done", app.getId()));
-
+        if (appDao.create(app)) {
+            IUpasDao upasDao = registry.get().getUpasDao();
+            try {
+                upasDao.initApp(app);
+                flash(VIEW_APPLICATION_LIST, calcMessages().at("msg.app.create.done", app.getId()));
+            } catch (Exception e) {
+                Logger.error(e.getMessage(), e);
+                appDao.delete(app);
+                upasDao.destroyApp(app);
+                flash(VIEW_APPLICATION_LIST,
+                        calcMessages().at("msg.app.create.failed", app.getId()));
+            }
+        } else {
+            flash(VIEW_APPLICATION_LIST, calcMessages().at("msg.app.create.failed", app.getId()));
+        }
         return redirect(routes.AdminCPController.applicationList());
     }
 
@@ -220,6 +234,9 @@ public class AdminCPController extends BaseController {
         }
 
         appDao.delete(app);
+
+        IUpasDao upasDao = registry.get().getUpasDao();
+        upasDao.destroyApp(app);
 
         flash(VIEW_APPLICATION_LIST, calcMessages().at("msg.app.delete.done", app.getId()));
 

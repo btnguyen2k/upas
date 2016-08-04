@@ -19,6 +19,13 @@ public interface IUpasDao {
      */
     public void initApp(AppBo app);
 
+    /**
+     * Destroys & cleans-up existing app's storage
+     * 
+     * @param app
+     */
+    public void destroyApp(AppBo app);
+
     /*----------------------------------------------------------------------*/
 
     /**

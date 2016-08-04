@@ -28,6 +28,7 @@ msg.app.existing_file = Existing file (upload new file to override)
 
 msg.app.create = Create Application
 msg.app.create.done = Application "{0}" has been created successfully.
+msg.app.create.failed = Failed to create application "{0}".
 msg.app.edit = Edit Application
 msg.app.edit.done = Application "{0}" has been updated successfully.
 msg.app.delete = Delete Application
