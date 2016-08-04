@@ -37,7 +37,7 @@ public class UsergroupBoMapper implements RowMapper<UsergroupBo> {
     }
 
     public static Object[] valuesForUpdate(UsergroupBo bo) {
-        return new Object[] { bo.isGod() ? 1 : 0, bo.getTitle(), bo.getDescription() };
+        return new Object[] { bo.isGod() ? 1 : 0, bo.getTitle(), bo.getDescription(), bo.getId() };
     }
 
     /**

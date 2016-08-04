@@ -35,7 +35,7 @@ public class UserBoMapper implements RowMapper<UserBo> {
     }
 
     public static Object[] valuesForUpdate(UserBo bo) {
-        return new Object[] { bo.getData() };
+        return new Object[] { bo.getData(), bo.getId() };
     }
 
     /**

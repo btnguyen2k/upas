@@ -36,7 +36,7 @@ public class PermissionBoMapper implements RowMapper<PermissionBo> {
     }
 
     public static Object[] valuesForUpdate(PermissionBo bo) {
-        return new Object[] { bo.getTitle(), bo.getDescription() };
+        return new Object[] { bo.getTitle(), bo.getDescription(), bo.getId() };
     }
 
     /**
