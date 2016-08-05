@@ -8,15 +8,21 @@ import bo.app.IAppDao;
 import bo.upas.IUpasDao;
 import bo.upas.PermissionBo;
 import bo.upas.UserBo;
+import bo.upas.UserRoleBo;
 import bo.upas.UsergroupBo;
+import bo.upas.UsergroupPermBo;
 import modules.cluster.BaseQueueThread;
 import modules.registry.IRegistry;
 import play.Logger;
 import queue.message.AddPermissionMessage;
+import queue.message.AddPermissionToGroupMessage;
 import queue.message.AddUserMessage;
+import queue.message.AddUserToGroupMessage;
 import queue.message.AddUsergroupMessage;
 import queue.message.BaseMessage;
+import queue.message.RemovePermissionFromGroupMessage;
 import queue.message.RemovePermissionMessage;
+import queue.message.RemoveUserFromGroupMessage;
 import queue.message.RemoveUserMessage;
 import queue.message.RemoveUsergroupMessage;
 import utils.UpasUtils;
@@ -48,17 +54,35 @@ public class AppEventThread extends BaseQueueThread {
             }
 
             if (baseMsg instanceof AddPermissionMessage) {
-                return addPermission((AddPermissionMessage) baseMsg);
+                addPermission((AddPermissionMessage) baseMsg);
+                return true;
             } else if (baseMsg instanceof AddUsergroupMessage) {
-                return addUsergroup((AddUsergroupMessage) baseMsg);
+                addUsergroup((AddUsergroupMessage) baseMsg);
+                return true;
             } else if (baseMsg instanceof AddUserMessage) {
-                return addUser((AddUserMessage) baseMsg);
+                addUser((AddUserMessage) baseMsg);
+                return true;
             } else if (baseMsg instanceof RemovePermissionMessage) {
-                return removePermission((RemovePermissionMessage) baseMsg);
+                removePermission((RemovePermissionMessage) baseMsg);
+                return true;
             } else if (baseMsg instanceof RemoveUsergroupMessage) {
-                return removeUsergroup((RemoveUsergroupMessage) baseMsg);
+                removeUsergroup((RemoveUsergroupMessage) baseMsg);
+                return true;
             } else if (baseMsg instanceof RemoveUserMessage) {
-                return removeUser((RemoveUserMessage) baseMsg);
+                removeUser((RemoveUserMessage) baseMsg);
+                return true;
+            } else if (baseMsg instanceof AddUserToGroupMessage) {
+                addUserToGroup((AddUserToGroupMessage) baseMsg);
+                return true;
+            } else if (baseMsg instanceof RemoveUserFromGroupMessage) {
+                removeUserFromGroup((RemoveUserFromGroupMessage) baseMsg);
+                return true;
+            } else if (baseMsg instanceof AddPermissionToGroupMessage) {
+                addPermissionToGroup((AddPermissionToGroupMessage) baseMsg);
+                return true;
+            } else if (baseMsg instanceof RemovePermissionFromGroupMessage) {
+                removePermissionFromGroup((RemovePermissionFromGroupMessage) baseMsg);
+                return true;
             }
         } else {
             if (Logger.isDebugEnabled()) {
@@ -82,98 +106,139 @@ public class AppEventThread extends BaseQueueThread {
         return app;
     }
 
-    private boolean addPermission(AddPermissionMessage msg) {
+    private void addPermission(AddPermissionMessage msg) {
         AppBo app = validateApp(msg);
-        if (app == null) {
-            return false;
-        }
-        UpasApi upasApi = getRegistry().getUpasApi();
-        PermissionBo perm = upasApi.addPermission(app, msg.getId(), msg.getTitle(),
-                msg.getDescription());
-        if (perm == null) {
-            Logger.error("Failed to add permission for app [" + msg.getAppId() + "]: " + msg);
-        }
-        return true;
-    }
-
-    private boolean removePermission(RemovePermissionMessage msg) {
-        AppBo app = validateApp(msg);
-        if (app == null) {
-            return false;
-        }
-        IUpasDao upasDao = getRegistry().getUpasDao();
-        PermissionBo perm = upasDao.getPermission(app, msg.getId());
-        if (perm != null) {
+        if (app != null) {
             UpasApi upasApi = getRegistry().getUpasApi();
-            upasApi.remove(app, perm);
-            return true;
-        } else {
-            Logger.error("Permission [" + msg.getId() + "] doesnot exist in app [" + msg.getAppId()
-                    + "]: " + msg);
-            return false;
+            PermissionBo perm = upasApi.addPermission(app, msg.getId(), msg.getTitle(),
+                    msg.getDescription());
+            if (perm == null) {
+                Logger.error("Failed to add permission for app [" + msg.getAppId() + "]: " + msg);
+            }
         }
     }
 
-    private boolean addUsergroup(AddUsergroupMessage msg) {
+    private void removePermission(RemovePermissionMessage msg) {
         AppBo app = validateApp(msg);
-        if (app == null) {
-            return false;
+        if (app != null) {
+            IUpasDao upasDao = getRegistry().getUpasDao();
+            PermissionBo perm = upasDao.getPermission(app, msg.getId());
+            if (perm != null) {
+                UpasApi upasApi = getRegistry().getUpasApi();
+                upasApi.remove(app, perm);
+            } else {
+                Logger.warn("Permission [" + msg.getId() + "] doesnot exist in app ["
+                        + msg.getAppId() + "]: " + msg);
+            }
         }
-        UpasApi upasApi = getRegistry().getUpasApi();
-        UsergroupBo ug = upasApi.addUsergroup(app, msg.getId(), msg.isGod(), msg.getTitle(),
-                msg.getDescription());
-        if (ug == null) {
-            Logger.error("Failed to add usergroup for app [" + msg.getAppId() + "]: " + msg);
-        }
-        return true;
     }
 
-    private boolean removeUsergroup(RemoveUsergroupMessage msg) {
+    private void addPermissionToGroup(AddPermissionToGroupMessage msg) {
         AppBo app = validateApp(msg);
-        if (app == null) {
-            return false;
-        }
-        IUpasDao upasDao = getRegistry().getUpasDao();
-        UsergroupBo ug = upasDao.getUsergroup(app, msg.getId());
-        if (ug != null) {
+        if (app != null) {
             UpasApi upasApi = getRegistry().getUpasApi();
-            upasApi.remove(app, ug);
-            return true;
-        } else {
-            Logger.error("Usergroup [" + msg.getId() + "] doesnot exist in app [" + msg.getAppId()
-                    + "]: " + msg);
-            return false;
+            String permId = msg.getPermissionId();
+            String groupId = msg.getUsergroupId();
+            UsergroupPermBo bo = upasApi.addPermissionToGroup(app, permId, groupId);
+            if (bo == null) {
+                Logger.error("Failed to add permission [" + permId + "] to group [" + groupId
+                        + "] for app [" + msg.getAppId() + "]: " + msg);
+            }
         }
     }
 
-    private boolean addUser(AddUserMessage msg) {
+    private void removePermissionFromGroup(RemovePermissionFromGroupMessage msg) {
         AppBo app = validateApp(msg);
-        if (app == null) {
-            return false;
+        if (app != null) {
+            String permId = msg.getPermissionId();
+            String groupId = msg.getUsergroupId();
+            IUpasDao upasDao = getRegistry().getUpasDao();
+            UsergroupPermBo bo = upasDao.getUsergroupPerm(app, groupId, permId);
+            if (bo != null) {
+                UpasApi upasApi = getRegistry().getUpasApi();
+                upasApi.remove(app, bo);
+            }
         }
-        UpasApi upasApi = getRegistry().getUpasApi();
-        UserBo user = upasApi.addUser(app, msg.getId(), msg.getDataMap());
-        if (user == null) {
-            Logger.error("Failed to add user for app [" + msg.getAppId() + "]: " + msg);
-        }
-        return true;
     }
 
-    private boolean removeUser(RemoveUserMessage msg) {
+    private void addUsergroup(AddUsergroupMessage msg) {
         AppBo app = validateApp(msg);
-        if (app == null) {
-            return false;
-        }
-        IUpasDao upasDao = getRegistry().getUpasDao();
-        UserBo user = upasDao.getUser(app, msg.getId());
-        if (user != null) {
+        if (app != null) {
             UpasApi upasApi = getRegistry().getUpasApi();
-            upasApi.remove(app, user);
-            return true;
-        } else {
-            Logger.error("User [" + msg.getId() + "] doesnot exist in app [" + msg.getAppId()
-                    + "]: " + msg);
-            return false;
+            UsergroupBo ug = upasApi.addUsergroup(app, msg.getId(), msg.isGod(), msg.getTitle(),
+                    msg.getDescription());
+            if (ug == null) {
+                Logger.error("Failed to add usergroup for app [" + msg.getAppId() + "]: " + msg);
+            }
+        }
+    }
+
+    private void removeUsergroup(RemoveUsergroupMessage msg) {
+        AppBo app = validateApp(msg);
+        if (app != null) {
+            IUpasDao upasDao = getRegistry().getUpasDao();
+            UsergroupBo ug = upasDao.getUsergroup(app, msg.getId());
+            if (ug != null) {
+                UpasApi upasApi = getRegistry().getUpasApi();
+                upasApi.remove(app, ug);
+            } else {
+                Logger.warn("Usergroup [" + msg.getId() + "] doesnot exist in app ["
+                        + msg.getAppId() + "]: " + msg);
+            }
+        }
+    }
+
+    private void addUser(AddUserMessage msg) {
+        AppBo app = validateApp(msg);
+        if (app != null) {
+            UpasApi upasApi = getRegistry().getUpasApi();
+            UserBo user = upasApi.addUser(app, msg.getId(), msg.getDataMap());
+            if (user == null) {
+                Logger.error("Failed to add user for app [" + msg.getAppId() + "]: " + msg);
+            }
+        }
+    }
+
+    private void removeUser(RemoveUserMessage msg) {
+        AppBo app = validateApp(msg);
+        if (app != null) {
+            IUpasDao upasDao = getRegistry().getUpasDao();
+            UserBo user = upasDao.getUser(app, msg.getId());
+            if (user != null) {
+                UpasApi upasApi = getRegistry().getUpasApi();
+                upasApi.remove(app, user);
+            } else {
+                Logger.warn("User [" + msg.getId() + "] doesnot exist in app [" + msg.getAppId()
+                        + "]: " + msg);
+            }
+        }
+    }
+
+    private void addUserToGroup(AddUserToGroupMessage msg) {
+        AppBo app = validateApp(msg);
+        if (app != null) {
+            UpasApi upasApi = getRegistry().getUpasApi();
+            String userId = msg.getUserId();
+            String groupId = msg.getUsergroupId();
+            UserRoleBo bo = upasApi.addUserToGroup(app, userId, groupId);
+            if (bo == null) {
+                Logger.error("Failed to add user [" + userId + "] to group [" + groupId
+                        + "] for app [" + msg.getAppId() + "]: " + msg);
+            }
+        }
+    }
+
+    private void removeUserFromGroup(RemoveUserFromGroupMessage msg) {
+        AppBo app = validateApp(msg);
+        if (app != null) {
+            String userId = msg.getUserId();
+            String groupId = msg.getUsergroupId();
+            IUpasDao upasDao = getRegistry().getUpasDao();
+            UserRoleBo bo = upasDao.getUserRole(app, userId, groupId);
+            if (bo != null) {
+                UpasApi upasApi = getRegistry().getUpasApi();
+                upasApi.remove(app, bo);
+            }
         }
     }
 }

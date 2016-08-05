@@ -10,6 +10,18 @@ import com.github.ddth.dao.BaseBo;
  * @since 0.1.0
  */
 public class UserRoleBo extends BaseBo {
+
+    public static UserRoleBo newInstance() {
+        UserRoleBo role = new UserRoleBo();
+        return role;
+    }
+
+    public static UserRoleBo newInstance(String userId, String groupId) {
+        UserRoleBo role = newInstance();
+        role.setUserId(userId).setGroupId(groupId);
+        return role;
+    }
+
     private final static String ATTR_UID = "uid";
     private final static String ATTR_GID = "gid";
 

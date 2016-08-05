@@ -12,6 +12,12 @@ import com.github.ddth.commons.utils.SerializationUtils;
 import com.github.ddth.queue.IQueue;
 
 import akka.util.ByteString;
+import bo.app.AppBo;
+import bo.app.IAppDao;
+import bo.upas.IUpasDao;
+import bo.upas.PermissionBo;
+import bo.upas.UserBo;
+import bo.upas.UsergroupBo;
 import compositions.ApiAuthRequired;
 import play.Logger;
 import play.mvc.Http.RawBuffer;
@@ -65,6 +71,10 @@ public class ApiController extends BaseController {
     public final static String PARAM_DATA = "data";
     public final static String PARAM_IS_GOD = "is_god";
 
+    public final static String PARAM_PERMISSION_ID = "perm_id";
+    public final static String PARAM_USER_ID = "user_id";
+    public final static String PARAM_USERGROUP_ID = "group_id";
+
     private Result validateRequestParams(Map<String, Object> params, String... fields) {
         for (String field : fields) {
             String fieldValue = DPathUtils.getValue(params, field, String.class);
@@ -98,6 +108,12 @@ public class ApiController extends BaseController {
             String appId = reqHeaders.get(HEADER_APP_ID);
 
             Map<String, Object> reqParams = parseRequestContent();
+            if (Logger.isDebugEnabled()) {
+                String clientIp = UpasUtils.getClientIp(request());
+                Logger.debug("Request [" + request().uri() + "] from [" + clientIp + "], params: "
+                        + reqParams);
+            }
+
             Result result = validateRequestParams(reqParams, PARAM_ID);
             if (result != null) {
                 return result;
@@ -105,12 +121,6 @@ public class ApiController extends BaseController {
             String id = DPathUtils.getValue(reqParams, PARAM_ID, String.class);
             String title = DPathUtils.getValue(reqParams, PARAM_TITLE, String.class);
             String desc = DPathUtils.getValue(reqParams, PARAM_DESC, String.class);
-
-            if (Logger.isDebugEnabled()) {
-                String clientIp = UpasUtils.getClientIp(request());
-                Logger.debug("Request [" + request().uri() + "] from [" + clientIp + "], params: "
-                        + reqParams);
-            }
 
             IQueue queue = getRegistry().getQueueAppEvents();
             if (UpasUtils.queueAddPermission(queue, appId, id, title, desc)) {
@@ -144,23 +154,136 @@ public class ApiController extends BaseController {
             String appId = reqHeaders.get(HEADER_APP_ID);
 
             Map<String, Object> reqParams = parseRequestContent();
-            Result result = validateRequestParams(reqParams, PARAM_ID);
-            if (result != null) {
-                return result;
-            }
-            String id = DPathUtils.getValue(reqParams, PARAM_ID, String.class);
-
             if (Logger.isDebugEnabled()) {
                 String clientIp = UpasUtils.getClientIp(request());
                 Logger.debug("Request [" + request().uri() + "] from [" + clientIp + "], params: "
                         + reqParams);
             }
 
+            Result result = validateRequestParams(reqParams, PARAM_ID);
+            if (result != null) {
+                return result;
+            }
+            String id = DPathUtils.getValue(reqParams, PARAM_ID, String.class);
+
             IQueue queue = getRegistry().getQueueAppEvents();
             if (UpasUtils.queueRemovePermission(queue, appId, id)) {
                 return doResponseJson(UpasConstants.RESPONSE_OK, "true", true);
             } else {
                 Logger.warn("Cannot put remove-permission message to queue.");
+                return doResponseJson(UpasConstants.RESPONSE_OK, "false", false);
+            }
+        } catch (Exception e) {
+            return doResponseJson(UpasConstants.RESPONSE_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    /**
+     * Adds an app permission to a group.
+     * 
+     * <p>
+     * Params:
+     * <ul>
+     * <li>{@code perm_id}: (required) String, permission's id.</li>
+     * <li>{@code group_id}: (required) String, usergroup's id.</li>
+     * </ul>
+     * </p>
+     * 
+     * @return
+     */
+    @ApiAuthRequired
+    public Result apiAddPermissionToGroup() {
+        try {
+            Map<String, String> reqHeaders = UpasUtils.parseRequestHeaders(request(),
+                    HEADER_APP_ID);
+            String appId = reqHeaders.get(HEADER_APP_ID);
+
+            Map<String, Object> reqParams = parseRequestContent();
+            if (Logger.isDebugEnabled()) {
+                String clientIp = UpasUtils.getClientIp(request());
+                Logger.debug("Request [" + request().uri() + "] from [" + clientIp + "], params: "
+                        + reqParams);
+            }
+
+            Result result = validateRequestParams(reqParams, PARAM_PERMISSION_ID,
+                    PARAM_USERGROUP_ID);
+            if (result != null) {
+                return result;
+            }
+            String permId = DPathUtils.getValue(reqParams, PARAM_PERMISSION_ID, String.class);
+            String groupId = DPathUtils.getValue(reqParams, PARAM_USERGROUP_ID, String.class);
+
+            IAppDao appDao = getRegistry().getAppDao();
+            AppBo app = appDao.getApp(appId);
+            if (app == null) {
+                return doResponseJson(UpasConstants.RESPONSE_NOT_FOUND,
+                        "App [" + appId + "] not found!");
+            }
+
+            IUpasDao upasDao = getRegistry().getUpasDao();
+            PermissionBo perm = upasDao.getPermission(app, permId);
+            if (perm == null) {
+                return doResponseJson(UpasConstants.RESPONSE_NOT_FOUND,
+                        "Permission [" + permId + "] cannot be found in app [" + appId + "]!");
+            }
+            UsergroupBo ug = upasDao.getUsergroup(app, groupId);
+            if (ug == null) {
+                return doResponseJson(UpasConstants.RESPONSE_NOT_FOUND,
+                        "Usergroup [" + groupId + "] cannot be found in app [" + appId + "]!");
+            }
+
+            IQueue queue = getRegistry().getQueueAppEvents();
+            if (UpasUtils.queueAddPermissionToGroup(queue, appId, permId, groupId)) {
+                return doResponseJson(UpasConstants.RESPONSE_OK, "true", true);
+            } else {
+                Logger.warn("Cannot put add-permission-to-group message to queue.");
+                return doResponseJson(UpasConstants.RESPONSE_OK, "false", false);
+            }
+        } catch (Exception e) {
+            return doResponseJson(UpasConstants.RESPONSE_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    /**
+     * Remove an app permission from a group.
+     * 
+     * <p>
+     * Params:
+     * <ul>
+     * <li>{@code perm_id}: (required) String, permission's id.</li>
+     * <li>{@code group_id}: (required) String, usergroup's id.</li>
+     * </ul>
+     * </p>
+     * 
+     * @return
+     */
+    @ApiAuthRequired
+    public Result apiRemovePermissionFromGroup() {
+        try {
+            Map<String, String> reqHeaders = UpasUtils.parseRequestHeaders(request(),
+                    HEADER_APP_ID);
+            String appId = reqHeaders.get(HEADER_APP_ID);
+
+            Map<String, Object> reqParams = parseRequestContent();
+            if (Logger.isDebugEnabled()) {
+                String clientIp = UpasUtils.getClientIp(request());
+                Logger.debug("Request [" + request().uri() + "] from [" + clientIp + "], params: "
+                        + reqParams);
+            }
+
+            Result result = validateRequestParams(reqParams, PARAM_PERMISSION_ID,
+                    PARAM_USERGROUP_ID);
+            if (result != null) {
+                return result;
+            }
+            String permId = DPathUtils.getValue(reqParams, PARAM_PERMISSION_ID, String.class);
+            String groupId = DPathUtils.getValue(reqParams, PARAM_USERGROUP_ID, String.class);
+
+            IQueue queue = getRegistry().getQueueAppEvents();
+            if (UpasUtils.queueRemovePermissionFromGroup(queue, appId, permId, groupId)) {
+                return doResponseJson(UpasConstants.RESPONSE_OK, "true", true);
+            } else {
+                Logger.warn("Cannot put remove-permission-from-group message to queue.");
                 return doResponseJson(UpasConstants.RESPONSE_OK, "false", false);
             }
         } catch (Exception e) {
@@ -190,18 +313,18 @@ public class ApiController extends BaseController {
             String appId = reqHeaders.get(HEADER_APP_ID);
 
             Map<String, Object> reqParams = parseRequestContent();
+            if (Logger.isDebugEnabled()) {
+                String clientIp = UpasUtils.getClientIp(request());
+                Logger.debug("Request [" + request().uri() + "] from [" + clientIp + "], params: "
+                        + reqParams);
+            }
+
             Result result = validateRequestParams(reqParams, PARAM_ID);
             if (result != null) {
                 return result;
             }
             String id = DPathUtils.getValue(reqParams, PARAM_ID, String.class);
             Map<String, Object> data = DPathUtils.getValue(reqParams, PARAM_DATA, Map.class);
-
-            if (Logger.isDebugEnabled()) {
-                String clientIp = UpasUtils.getClientIp(request());
-                Logger.debug("Request [" + request().uri() + "] from [" + clientIp + "], params: "
-                        + reqParams);
-            }
 
             IQueue queue = getRegistry().getQueueAppEvents();
             if (UpasUtils.queueAddUser(queue, appId, id, data)) {
@@ -235,23 +358,134 @@ public class ApiController extends BaseController {
             String appId = reqHeaders.get(HEADER_APP_ID);
 
             Map<String, Object> reqParams = parseRequestContent();
-            Result result = validateRequestParams(reqParams, PARAM_ID);
-            if (result != null) {
-                return result;
-            }
-            String id = DPathUtils.getValue(reqParams, PARAM_ID, String.class);
-
             if (Logger.isDebugEnabled()) {
                 String clientIp = UpasUtils.getClientIp(request());
                 Logger.debug("Request [" + request().uri() + "] from [" + clientIp + "], params: "
                         + reqParams);
             }
 
+            Result result = validateRequestParams(reqParams, PARAM_ID);
+            if (result != null) {
+                return result;
+            }
+            String id = DPathUtils.getValue(reqParams, PARAM_ID, String.class);
+
             IQueue queue = getRegistry().getQueueAppEvents();
             if (UpasUtils.queueRemoveUser(queue, appId, id)) {
                 return doResponseJson(UpasConstants.RESPONSE_OK, "true", true);
             } else {
                 Logger.warn("Cannot put remove-user message to queue.");
+                return doResponseJson(UpasConstants.RESPONSE_OK, "false", false);
+            }
+        } catch (Exception e) {
+            return doResponseJson(UpasConstants.RESPONSE_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    /**
+     * Adds an app user to a group.
+     * 
+     * <p>
+     * Params:
+     * <ul>
+     * <li>{@code user_id}: (required) String, user's id.</li>
+     * <li>{@code group_id}: (required) String, usergroup's id.</li>
+     * </ul>
+     * </p>
+     * 
+     * @return
+     */
+    @ApiAuthRequired
+    public Result apiAddUserToGroup() {
+        try {
+            Map<String, String> reqHeaders = UpasUtils.parseRequestHeaders(request(),
+                    HEADER_APP_ID);
+            String appId = reqHeaders.get(HEADER_APP_ID);
+
+            Map<String, Object> reqParams = parseRequestContent();
+            if (Logger.isDebugEnabled()) {
+                String clientIp = UpasUtils.getClientIp(request());
+                Logger.debug("Request [" + request().uri() + "] from [" + clientIp + "], params: "
+                        + reqParams);
+            }
+
+            Result result = validateRequestParams(reqParams, PARAM_USER_ID, PARAM_USERGROUP_ID);
+            if (result != null) {
+                return result;
+            }
+            String userId = DPathUtils.getValue(reqParams, PARAM_USER_ID, String.class);
+            String groupId = DPathUtils.getValue(reqParams, PARAM_USERGROUP_ID, String.class);
+
+            IAppDao appDao = getRegistry().getAppDao();
+            AppBo app = appDao.getApp(appId);
+            if (app == null) {
+                return doResponseJson(UpasConstants.RESPONSE_NOT_FOUND,
+                        "App [" + appId + "] not found!");
+            }
+
+            IUpasDao upasDao = getRegistry().getUpasDao();
+            UserBo user = upasDao.getUser(app, userId);
+            if (user == null) {
+                return doResponseJson(UpasConstants.RESPONSE_NOT_FOUND,
+                        "User [" + userId + "] cannot be found in app [" + appId + "]!");
+            }
+            UsergroupBo ug = upasDao.getUsergroup(app, groupId);
+            if (ug == null) {
+                return doResponseJson(UpasConstants.RESPONSE_NOT_FOUND,
+                        "Usergroup [" + groupId + "] cannot be found in app [" + appId + "]!");
+            }
+
+            IQueue queue = getRegistry().getQueueAppEvents();
+            if (UpasUtils.queueAddUserToGroup(queue, appId, userId, groupId)) {
+                return doResponseJson(UpasConstants.RESPONSE_OK, "true", true);
+            } else {
+                Logger.warn("Cannot put add-user-to-group message to queue.");
+                return doResponseJson(UpasConstants.RESPONSE_OK, "false", false);
+            }
+        } catch (Exception e) {
+            return doResponseJson(UpasConstants.RESPONSE_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    /**
+     * Remove an app user from a group.
+     * 
+     * <p>
+     * Params:
+     * <ul>
+     * <li>{@code user_id}: (required) String, user's id.</li>
+     * <li>{@code group_id}: (required) String, usergroup's id.</li>
+     * </ul>
+     * </p>
+     * 
+     * @return
+     */
+    @ApiAuthRequired
+    public Result apiRemoveUserFromGroup() {
+        try {
+            Map<String, String> reqHeaders = UpasUtils.parseRequestHeaders(request(),
+                    HEADER_APP_ID);
+            String appId = reqHeaders.get(HEADER_APP_ID);
+
+            Map<String, Object> reqParams = parseRequestContent();
+            if (Logger.isDebugEnabled()) {
+                String clientIp = UpasUtils.getClientIp(request());
+                Logger.debug("Request [" + request().uri() + "] from [" + clientIp + "], params: "
+                        + reqParams);
+            }
+
+            Result result = validateRequestParams(reqParams, PARAM_USER_ID, PARAM_USERGROUP_ID);
+            if (result != null) {
+                return result;
+            }
+            String userId = DPathUtils.getValue(reqParams, PARAM_USER_ID, String.class);
+            String groupId = DPathUtils.getValue(reqParams, PARAM_USERGROUP_ID, String.class);
+
+            IQueue queue = getRegistry().getQueueAppEvents();
+            if (UpasUtils.queueRemoveUserFromGroup(queue, appId, userId, groupId)) {
+                return doResponseJson(UpasConstants.RESPONSE_OK, "true", true);
+            } else {
+                Logger.warn("Cannot put remove-user-from-group message to queue.");
                 return doResponseJson(UpasConstants.RESPONSE_OK, "false", false);
             }
         } catch (Exception e) {

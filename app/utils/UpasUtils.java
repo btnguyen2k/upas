@@ -22,10 +22,14 @@ import com.github.ddth.queue.impl.universal.UniversalQueueMessage;
 import play.Logger;
 import play.mvc.Http.Request;
 import queue.message.AddPermissionMessage;
+import queue.message.AddPermissionToGroupMessage;
 import queue.message.AddUserMessage;
+import queue.message.AddUserToGroupMessage;
 import queue.message.AddUsergroupMessage;
 import queue.message.BaseMessage;
+import queue.message.RemovePermissionFromGroupMessage;
 import queue.message.RemovePermissionMessage;
+import queue.message.RemoveUserFromGroupMessage;
 import queue.message.RemoveUserMessage;
 import queue.message.RemoveUsergroupMessage;
 
@@ -145,6 +149,24 @@ public class UpasUtils {
         return queue.queue(queueMsg);
     }
 
+    public static boolean queueAddPermissionToGroup(IQueue queue, String appId, String permId,
+            String groupId) {
+        AddPermissionToGroupMessage msg = AddPermissionToGroupMessage.newInstance(appId, permId,
+                groupId);
+        UniversalQueueMessage queueMsg = UniversalQueueMessage.newInstance();
+        queueMsg.content(toBytes(msg));
+        return queue.queue(queueMsg);
+    }
+
+    public static boolean queueRemovePermissionFromGroup(IQueue queue, String appId, String permId,
+            String groupId) {
+        RemovePermissionFromGroupMessage msg = RemovePermissionFromGroupMessage.newInstance(appId,
+                permId, groupId);
+        UniversalQueueMessage queueMsg = UniversalQueueMessage.newInstance();
+        queueMsg.content(toBytes(msg));
+        return queue.queue(queueMsg);
+    }
+
     public static boolean queueAddUser(IQueue queue, String appId, String id,
             Map<String, Object> data) {
         AddUserMessage msg = AddUserMessage.newInstance(appId, id, data);
@@ -155,6 +177,23 @@ public class UpasUtils {
 
     public static boolean queueRemoveUser(IQueue queue, String appId, String id) {
         RemoveUserMessage msg = RemoveUserMessage.newInstance(appId, id);
+        UniversalQueueMessage queueMsg = UniversalQueueMessage.newInstance();
+        queueMsg.content(toBytes(msg));
+        return queue.queue(queueMsg);
+    }
+
+    public static boolean queueAddUserToGroup(IQueue queue, String appId, String userId,
+            String groupId) {
+        AddUserToGroupMessage msg = AddUserToGroupMessage.newInstance(appId, userId, groupId);
+        UniversalQueueMessage queueMsg = UniversalQueueMessage.newInstance();
+        queueMsg.content(toBytes(msg));
+        return queue.queue(queueMsg);
+    }
+
+    public static boolean queueRemoveUserFromGroup(IQueue queue, String appId, String userId,
+            String groupId) {
+        RemoveUserFromGroupMessage msg = RemoveUserFromGroupMessage.newInstance(appId, userId,
+                groupId);
         UniversalQueueMessage queueMsg = UniversalQueueMessage.newInstance();
         queueMsg.content(toBytes(msg));
         return queue.queue(queueMsg);

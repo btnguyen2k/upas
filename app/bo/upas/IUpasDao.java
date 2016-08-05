@@ -174,9 +174,11 @@ public interface IUpasDao {
      * 
      * @param app
      * @param usergroupPerm
-     * @return
+     * @return see {@link UpasConstants#DAO_RESULT_OK},
+     *         {@link UpasConstants#DAO_RESULT_DUPLICATED} and
+     *         {@link UpasConstants#DAO_RESULT_NOT_AFFECTED}
      */
-    public boolean create(AppBo app, UsergroupPermBo usergroupPerm);
+    public int create(AppBo app, UsergroupPermBo usergroupPerm);
 
     /**
      * Deletes an existing app usergroup-permission mapping.
@@ -203,9 +205,11 @@ public interface IUpasDao {
      * 
      * @param app
      * @param userRole
-     * @return
+     * @return see {@link UpasConstants#DAO_RESULT_OK},
+     *         {@link UpasConstants#DAO_RESULT_DUPLICATED} and
+     *         {@link UpasConstants#DAO_RESULT_NOT_AFFECTED}
      */
-    public boolean create(AppBo app, UserRoleBo userRole);
+    public int create(AppBo app, UserRoleBo userRole);
 
     /**
      * Deletes an existing app user-group mapping.

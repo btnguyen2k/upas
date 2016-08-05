@@ -10,6 +10,18 @@ import com.github.ddth.dao.BaseBo;
  * @since 0.1.0
  */
 public class UsergroupPermBo extends BaseBo {
+
+    public static UsergroupPermBo newInstance() {
+        UsergroupPermBo bo = new UsergroupPermBo();
+        return bo;
+    }
+
+    public static UsergroupPermBo newInstance(String permId, String groupId) {
+        UsergroupPermBo bo = newInstance();
+        bo.setPermissionId(permId).setGroupId(groupId);
+        return bo;
+    }
+
     private final static String ATTR_GID = "gid";
     private final static String ATTR_PID = "pid";
 

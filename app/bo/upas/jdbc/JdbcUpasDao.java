@@ -681,13 +681,16 @@ public abstract class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
      * {@inheritDoc}
      */
     @Override
-    public boolean create(AppBo app, UsergroupPermBo usergroupPerm) {
+    public int create(AppBo app, UsergroupPermBo usergroupPerm) {
         try {
             String SQL = MessageFormat.format(SQL_CREATE_USERGROUP_PERM,
                     calcTableNameUsergroupPerm(app));
             int numRows = execute(SQL, UsergroupPermBoMapper.valuesForCreate(usergroupPerm));
             invalidate(app, usergroupPerm, true);
-            return numRows > 0;
+            return numRows > 0 ? UpasConstants.DAO_RESULT_OK
+                    : UpasConstants.DAO_RESULT_NOT_AFFECTED;
+        } catch (DuplicateKeyException dke) {
+            return UpasConstants.DAO_RESULT_DUPLICATED;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -748,12 +751,15 @@ public abstract class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
      * {@inheritDoc}
      */
     @Override
-    public boolean create(AppBo app, UserRoleBo userRole) {
+    public int create(AppBo app, UserRoleBo userRole) {
         try {
             String SQL = MessageFormat.format(SQL_CREATE_USER_ROLE, calcTableNameUserRole(app));
             int numRows = execute(SQL, UserRoleBoMapper.valuesForCreate(userRole));
             invalidate(app, userRole, true);
-            return numRows > 0;
+            return numRows > 0 ? UpasConstants.DAO_RESULT_OK
+                    : UpasConstants.DAO_RESULT_NOT_AFFECTED;
+        } catch (DuplicateKeyException dke) {
+            return UpasConstants.DAO_RESULT_DUPLICATED;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

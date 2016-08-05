@@ -6,7 +6,9 @@ import bo.app.AppBo;
 import bo.upas.IUpasDao;
 import bo.upas.PermissionBo;
 import bo.upas.UserBo;
+import bo.upas.UserRoleBo;
 import bo.upas.UsergroupBo;
+import bo.upas.UsergroupPermBo;
 import utils.UpasConstants;
 
 /**
@@ -67,6 +69,36 @@ public class UpasApi {
     }
 
     /**
+     * Adds a permission to a user-group.
+     * 
+     * @param app
+     * @param permId
+     * @param groupId
+     * @return
+     */
+    public UsergroupPermBo addPermissionToGroup(AppBo app, String permId, String groupId) {
+        UsergroupPermBo bo = UsergroupPermBo.newInstance(permId, groupId);
+        int result = upasDao.create(app, bo);
+        switch (result) {
+        case UpasConstants.DAO_RESULT_OK:
+        case UpasConstants.DAO_RESULT_DUPLICATED:
+            return bo;
+        default:
+            return null;
+        }
+    }
+
+    /**
+     * Removes a permission from a user-group.
+     * 
+     * @param app
+     * @param usergroupPerm
+     */
+    public void remove(AppBo app, UsergroupPermBo usergroupPerm) {
+        upasDao.delete(app, usergroupPerm);
+    }
+
+    /**
      * Creates or Updates an app user.
      * 
      * @param app
@@ -106,6 +138,36 @@ public class UpasApi {
      */
     public void remove(AppBo app, UserBo user) {
         upasDao.delete(app, user);
+    }
+
+    /**
+     * Adds a user to a user-group.
+     * 
+     * @param app
+     * @param userId
+     * @param groupId
+     * @return
+     */
+    public UserRoleBo addUserToGroup(AppBo app, String userId, String groupId) {
+        UserRoleBo bo = UserRoleBo.newInstance(userId, groupId);
+        int result = upasDao.create(app, bo);
+        switch (result) {
+        case UpasConstants.DAO_RESULT_OK:
+        case UpasConstants.DAO_RESULT_DUPLICATED:
+            return bo;
+        default:
+            return null;
+        }
+    }
+
+    /**
+     * Removes a user from a user-group.
+     * 
+     * @param app
+     * @param userRole
+     */
+    public void remove(AppBo app, UserRoleBo userRole) {
+        upasDao.delete(app, userRole);
     }
 
     /**
