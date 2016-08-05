@@ -1,5 +1,6 @@
 package bo.upas.jdbc;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -327,10 +328,28 @@ public abstract class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
     @Override
     public boolean delete(AppBo app, PermissionBo perm) {
         try {
-            String SQL = MessageFormat.format(SQL_DELETE_PERMISSION, calcTableNamePermission(app));
-            int numRows = execute(SQL, PermissionBoMapper.valuesForDelete(perm));
-            invalidate(app, perm, false);
-            return numRows > 0;
+            Connection conn = connection(true);
+            try {
+                String SQL = MessageFormat.format(SQL_DELETE_PERMISSION,
+                        calcTableNamePermission(app));
+                int numRows = execute(SQL, PermissionBoMapper.valuesForDelete(perm));
+                if (numRows > 0) {
+                    String permId = perm.getId();
+                    Set<UsergroupBo> groups = getGroupsHasPermission(app, perm);
+                    for (UsergroupBo group : groups) {
+                        UsergroupPermBo bo = UsergroupPermBo.newInstance(permId, group.getId());
+                        delete(app, bo);
+                    }
+                }
+                invalidate(app, perm, false);
+                commitTransaction(conn);
+                return numRows > 0;
+            } catch (Exception e) {
+                rollbackTransaction(conn);
+                throw e;
+            } finally {
+                returnConnection(conn);
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -452,10 +471,27 @@ public abstract class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
     @Override
     public boolean delete(AppBo app, UserBo user) {
         try {
-            String SQL = MessageFormat.format(SQL_DELETE_USER, calcTableNameUser(app));
-            int numRows = execute(SQL, UserBoMapper.valuesForDelete(user));
-            invalidate(app, user, false);
-            return numRows > 0;
+            Connection conn = connection(true);
+            try {
+                String SQL = MessageFormat.format(SQL_DELETE_USER, calcTableNameUser(app));
+                int numRows = execute(SQL, UserBoMapper.valuesForDelete(user));
+                if (numRows > 0) {
+                    String userId = user.getId();
+                    Set<UsergroupBo> usergroups = getUserRoles(app, user);
+                    for (UsergroupBo usergroup : usergroups) {
+                        UserRoleBo bo = UserRoleBo.newInstance(userId, usergroup.getId());
+                        delete(app, bo);
+                    }
+                }
+                invalidate(app, user, false);
+                commitTransaction(conn);
+                return numRows > 0;
+            } catch (Exception e) {
+                rollbackTransaction(conn);
+                throw e;
+            } finally {
+                returnConnection(conn);
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -578,10 +614,35 @@ public abstract class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
     @Override
     public boolean delete(AppBo app, UsergroupBo usergroup) {
         try {
-            String SQL = MessageFormat.format(SQL_DELETE_USERGROUP, calcTableNameUsergroup(app));
-            int numRows = execute(SQL, UsergroupBoMapper.valuesForDelete(usergroup));
-            invalidate(app, usergroup, false);
-            return numRows > 0;
+            Connection conn = connection(true);
+            try {
+                String SQL = MessageFormat.format(SQL_DELETE_USERGROUP,
+                        calcTableNameUsergroup(app));
+                int numRows = execute(SQL, UsergroupBoMapper.valuesForDelete(usergroup));
+                if (numRows > 0) {
+                    String groupId = usergroup.getId();
+
+                    Set<UserBo> users = getUsersInGroup(app, usergroup);
+                    for (UserBo user : users) {
+                        UserRoleBo bo = UserRoleBo.newInstance(user.getId(), groupId);
+                        delete(app, bo);
+                    }
+
+                    Set<PermissionBo> perms = getUsergroupPermissions(app, usergroup);
+                    for (PermissionBo perm : perms) {
+                        UsergroupPermBo bo = UsergroupPermBo.newInstance(perm.getId(), groupId);
+                        delete(app, bo);
+                    }
+                }
+                invalidate(app, usergroup, false);
+                commitTransaction(conn);
+                return numRows > 0;
+            } catch (Exception e) {
+                rollbackTransaction(conn);
+                throw e;
+            } finally {
+                returnConnection(conn);
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -807,10 +868,16 @@ public abstract class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
     /*----------------------------------------------------------------------*/
     private String SQL_GET_USER_ROLES = "SELECT " + UserRoleBoMapper.COL_GID + " FROM {0} WHERE "
             + UserRoleBoMapper.COL_UID + "=? ORDER BY " + UserRoleBoMapper.COL_GID;
+    private String SQL_GET_USERS_IN_GROUP = "SELECT " + UserRoleBoMapper.COL_UID
+            + " FROM {0} WHERE " + UserRoleBoMapper.COL_GID + "=? ORDER BY "
+            + UserRoleBoMapper.COL_UID;
 
     private String SQL_GET_USERGROUP_PERMISSIONS = "SELECT " + UsergroupPermBoMapper.COL_PID
             + " FROM {0} WHERE " + UsergroupPermBoMapper.COL_GID + "=? ORDER BY "
             + UsergroupPermBoMapper.COL_PID;
+    private String SQL_GET_GROUPS_HAS_PERMISSIONS = "SELECT " + UsergroupPermBoMapper.COL_GID
+            + " FROM {0} WHERE " + UsergroupPermBoMapper.COL_PID + "=? ORDER BY "
+            + UsergroupPermBoMapper.COL_GID;
 
     /**
      * {@inheritDoc}
@@ -843,6 +910,32 @@ public abstract class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
             UsergroupBo usergroup = getUsergroup(app, usergroupId);
             if (usergroup != null) {
                 result.add(usergroup);
+            }
+        }
+        return result;
+    }
+
+    private Set<UserBo> getUsersInGroup(AppBo app, UsergroupBo usergroup) {
+        List<String> userIds = new ArrayList<>();
+        try {
+            String SQL = MessageFormat.format(SQL_GET_USERS_IN_GROUP, calcTableNameUserRole(app));
+            List<Map<String, Object>> dbRows = executeSelect(SQL,
+                    new Object[] { usergroup.getId() });
+            for (Map<String, Object> dbRow : dbRows) {
+                String id = DPathUtils.getValue(dbRow, UserRoleBoMapper.COL_UID, String.class);
+                if (!StringUtils.isBlank(id)) {
+                    userIds.add(id);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        Set<UserBo> result = new HashSet<>();
+        for (String userId : userIds) {
+            UserBo user = getUser(app, userId);
+            if (user != null) {
+                result.add(user);
             }
         }
         return result;
@@ -881,6 +974,32 @@ public abstract class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
             PermissionBo perm = getPermission(app, permId);
             if (perm != null) {
                 result.add(perm);
+            }
+        }
+        return result;
+    }
+
+    private Set<UsergroupBo> getGroupsHasPermission(AppBo app, PermissionBo perm) {
+        List<String> usergroupIds = new ArrayList<>();
+        try {
+            String SQL = MessageFormat.format(SQL_GET_GROUPS_HAS_PERMISSIONS,
+                    calcTableNameUsergroupPerm(app));
+            List<Map<String, Object>> dbRows = executeSelect(SQL, new Object[] { perm.getId() });
+            for (Map<String, Object> dbRow : dbRows) {
+                String id = DPathUtils.getValue(dbRow, UsergroupPermBoMapper.COL_GID, String.class);
+                if (!StringUtils.isBlank(id)) {
+                    usergroupIds.add(id);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        Set<UsergroupBo> result = new HashSet<>();
+        for (String usergroupId : usergroupIds) {
+            UsergroupBo usergroup = getUsergroup(app, usergroupId);
+            if (usergroup != null) {
+                result.add(usergroup);
             }
         }
         return result;

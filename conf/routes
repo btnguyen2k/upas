@@ -26,6 +26,10 @@ POST    /api/addUser                            controllers.ApiController.apiAdd
 POST    /api/removeUser                         controllers.ApiController.apiRemoveUser()
 POST    /api/addUsergroup                       controllers.ApiController.apiAddUsergroup()
 POST    /api/removeUsergroup                    controllers.ApiController.apiRemoveUsergroup()
+POST    /api/addUserToGroup                     controllers.ApiController.apiAddUserToGroup()
+POST    /api/removeUserFromGroup                controllers.ApiController.apiRemoveUserFromGroup()
+POST    /api/addPermissionToGroup               controllers.ApiController.apiAddPermissionToGroup()
+POST    /api/removePermissionFromGroup          controllers.ApiController.apiRemovePermissionFromGroup()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                           controllers.Assets.versioned(path="/public", file: Asset)
