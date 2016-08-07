@@ -1,7 +1,10 @@
 package controllers;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -77,8 +80,9 @@ public class ApiController extends BaseController {
 
     private Result validateRequestParams(Map<String, Object> params, String... fields) {
         for (String field : fields) {
-            String fieldValue = DPathUtils.getValue(params, field, String.class);
-            if (StringUtils.isBlank(fieldValue)) {
+            Object fieldValue = DPathUtils.getValue(params, field);
+            if (fieldValue == null || (fieldValue instanceof CharSequence
+                    && StringUtils.isBlank((CharSequence) fieldValue))) {
                 return doResponseJson(UpasConstants.RESPONSE_CLIENT_ERROR,
                         "Field [" + field + "] is missting or invalid!");
             }
@@ -516,6 +520,12 @@ public class ApiController extends BaseController {
             String appId = reqHeaders.get(HEADER_APP_ID);
 
             Map<String, Object> reqParams = parseRequestContent();
+            if (Logger.isDebugEnabled()) {
+                String clientIp = UpasUtils.getClientIp(request());
+                Logger.debug("Request [" + request().uri() + "] from [" + clientIp + "], params: "
+                        + reqParams);
+            }
+
             Result result = validateRequestParams(reqParams, PARAM_ID);
             if (result != null) {
                 return result;
@@ -524,12 +534,6 @@ public class ApiController extends BaseController {
             Boolean isGod = DPathUtils.getValue(reqParams, PARAM_IS_GOD, Boolean.class);
             String title = DPathUtils.getValue(reqParams, PARAM_TITLE, String.class);
             String desc = DPathUtils.getValue(reqParams, PARAM_DESC, String.class);
-
-            if (Logger.isDebugEnabled()) {
-                String clientIp = UpasUtils.getClientIp(request());
-                Logger.debug("Request [" + request().uri() + "] from [" + clientIp + "], params: "
-                        + reqParams);
-            }
 
             IQueue queue = getRegistry().getQueueAppEvents();
             if (UpasUtils.queueAddUsergroup(queue, appId, id, isGod, title, desc)) {
@@ -563,17 +567,17 @@ public class ApiController extends BaseController {
             String appId = reqHeaders.get(HEADER_APP_ID);
 
             Map<String, Object> reqParams = parseRequestContent();
-            Result result = validateRequestParams(reqParams, PARAM_ID);
-            if (result != null) {
-                return result;
-            }
-            String id = DPathUtils.getValue(reqParams, PARAM_ID, String.class);
-
             if (Logger.isDebugEnabled()) {
                 String clientIp = UpasUtils.getClientIp(request());
                 Logger.debug("Request [" + request().uri() + "] from [" + clientIp + "], params: "
                         + reqParams);
             }
+
+            Result result = validateRequestParams(reqParams, PARAM_ID);
+            if (result != null) {
+                return result;
+            }
+            String id = DPathUtils.getValue(reqParams, PARAM_ID, String.class);
 
             IQueue queue = getRegistry().getQueueAppEvents();
             if (UpasUtils.queueRemoveUsergroup(queue, appId, id)) {
@@ -586,4 +590,216 @@ public class ApiController extends BaseController {
             return doResponseJson(UpasConstants.RESPONSE_SERVER_ERROR, e.getMessage());
         }
     }
+
+    /*----------------------------------------------------------------------*/
+
+    @SuppressWarnings("unchecked")
+    /**
+     * Checks if a user has any permission.
+     * 
+     * <p>
+     * Given a user and a list of permissions, this API returns {@code true} if
+     * the user has any of the permission from the list, {@code false}
+     * otherwise.
+     * </p>
+     * 
+     * <p>
+     * Params:
+     * <ul>
+     * <li>{@code user_id}: (required) String, user's id.</li>
+     * <li>{@code perms}: (required) [String], list of permission ids</li>
+     * </ul>
+     * </p>
+     * 
+     * @return
+     */
+    @ApiAuthRequired
+    public Result apiHasUserPermission() {
+        try {
+            Map<String, String> reqHeaders = UpasUtils.parseRequestHeaders(request(),
+                    HEADER_APP_ID);
+            String appId = reqHeaders.get(HEADER_APP_ID);
+
+            Map<String, Object> reqParams = parseRequestContent();
+            if (Logger.isDebugEnabled()) {
+                String clientIp = UpasUtils.getClientIp(request());
+                Logger.debug("Request [" + request().uri() + "] from [" + clientIp + "], params: "
+                        + reqParams);
+            }
+
+            Result result = validateRequestParams(reqParams, PARAM_USER_ID, "perms");
+            if (result != null) {
+                return result;
+            }
+            String userId = DPathUtils.getValue(reqParams, PARAM_USER_ID, String.class);
+            Collection<String> permIds = DPathUtils.getValue(reqParams, "perms", Collection.class);
+
+            if (permIds == null || permIds.size() == 0) {
+                return doResponseJson(UpasConstants.RESPONSE_CLIENT_ERROR,
+                        "Parameter [perm] is empty or invalid!");
+            } else if (!(permIds instanceof Set)) {
+                permIds = new HashSet<>(permIds);
+            }
+
+            IAppDao appDao = getRegistry().getAppDao();
+            AppBo app = appDao.getApp(appId);
+            if (app == null) {
+                return doResponseJson(UpasConstants.RESPONSE_NOT_FOUND,
+                        "App [" + appId + "] not found!");
+            }
+
+            IUpasDao upasDao = getRegistry().getUpasDao();
+            UserBo user = upasDao.getUser(app, userId);
+            if (user == null) {
+                return doResponseJson(UpasConstants.RESPONSE_NOT_FOUND,
+                        "User [" + userId + "] cannot be found in app [" + appId + "]!");
+            }
+
+            Set<UsergroupBo> usergroups = upasDao.getUserRoles(app, user);
+            for (UsergroupBo ug : usergroups) {
+                if (ug.isGod()) {
+                    return doResponseJson(UpasConstants.RESPONSE_OK, "true", true);
+                } else {
+                    Set<PermissionBo> groupPerms = upasDao.getUsergroupPermissions(app, ug);
+                    for (PermissionBo perm : groupPerms) {
+                        if (permIds.contains(perm.getId())) {
+                            return doResponseJson(UpasConstants.RESPONSE_OK, "true", true);
+                        }
+                    }
+                }
+            }
+
+            return doResponseJson(UpasConstants.RESPONSE_OK, "false", false);
+        } catch (Exception e) {
+            return doResponseJson(UpasConstants.RESPONSE_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    // /**
+    // * Checks if a user belongs to a group.
+    // *
+    // * <p>
+    // * Params:
+    // * <ul>
+    // * <li>{@code user_id}: (required) String, user's id.</li>
+    // * <li>{@code group_id}: (required) String, user-group's id</li>
+    // * </ul>
+    // * </p>
+    // *
+    // * @return
+    // */
+    // @ApiAuthRequired
+    // public Result apiIsUserInGroup() {
+    // try {
+    // Map<String, String> reqHeaders = UpasUtils.parseRequestHeaders(request(),
+    // HEADER_APP_ID);
+    // String appId = reqHeaders.get(HEADER_APP_ID);
+    //
+    // Map<String, Object> reqParams = parseRequestContent();
+    // if (Logger.isDebugEnabled()) {
+    // String clientIp = UpasUtils.getClientIp(request());
+    // Logger.debug("Request [" + request().uri() + "] from [" + clientIp + "],
+    // params: "
+    // + reqParams);
+    // }
+    //
+    // Result result = validateRequestParams(reqParams, PARAM_USER_ID,
+    // PARAM_USERGROUP_ID);
+    // if (result != null) {
+    // return result;
+    // }
+    // String userId = DPathUtils.getValue(reqParams, PARAM_USER_ID,
+    // String.class);
+    // String groupId = DPathUtils.getValue(reqParams, PARAM_USERGROUP_ID,
+    // String.class);
+    //
+    // IAppDao appDao = getRegistry().getAppDao();
+    // AppBo app = appDao.getApp(appId);
+    // if (app == null) {
+    // return doResponseJson(UpasConstants.RESPONSE_NOT_FOUND,
+    // "App [" + appId + "] not found!");
+    // }
+    //
+    // IUpasDao upasDao = getRegistry().getUpasDao();
+    // UserBo user = upasDao.getUser(app, userId);
+    // if (user == null) {
+    // return doResponseJson(UpasConstants.RESPONSE_NOT_FOUND,
+    // "User [" + userId + "] cannot be found in app [" + appId + "]!");
+    // }
+    // UsergroupBo ug = upasDao.getUsergroup(app, groupId);
+    // if (ug == null) {
+    // return doResponseJson(UpasConstants.RESPONSE_NOT_FOUND,
+    // "Usergroup [" + groupId + "] cannot be found in app [" + appId + "]!");
+    // }
+    //
+    // UserRoleBo userRole = upasDao.getUserRole(app, userId, groupId);
+    // return doResponseJson(UpasConstants.RESPONSE_OK, userRole != null ?
+    // "true" : "false",
+    // userRole != null);
+    // } catch (Exception e) {
+    // return doResponseJson(UpasConstants.RESPONSE_SERVER_ERROR,
+    // e.getMessage());
+    // }
+    // }
+    //
+    // /**
+    // * Checks if a user belongs to a god group.
+    // *
+    // * <p>
+    // * Params:
+    // * <ul>
+    // * <li>{@code user_id}: (required) String, user's id.</li>
+    // * </ul>
+    // * </p>
+    // *
+    // * @return
+    // */
+    // @ApiAuthRequired
+    // public Result apiIsUserGod() {
+    // try {
+    // Map<String, String> reqHeaders = UpasUtils.parseRequestHeaders(request(),
+    // HEADER_APP_ID);
+    // String appId = reqHeaders.get(HEADER_APP_ID);
+    //
+    // Map<String, Object> reqParams = parseRequestContent();
+    // if (Logger.isDebugEnabled()) {
+    // String clientIp = UpasUtils.getClientIp(request());
+    // Logger.debug("Request [" + request().uri() + "] from [" + clientIp + "],
+    // params: "
+    // + reqParams);
+    // }
+    //
+    // Result result = validateRequestParams(reqParams, PARAM_USER_ID);
+    // if (result != null) {
+    // return result;
+    // }
+    // String userId = DPathUtils.getValue(reqParams, PARAM_USER_ID,
+    // String.class);
+    //
+    // IAppDao appDao = getRegistry().getAppDao();
+    // AppBo app = appDao.getApp(appId);
+    // if (app == null) {
+    // return doResponseJson(UpasConstants.RESPONSE_NOT_FOUND,
+    // "App [" + appId + "] not found!");
+    // }
+    //
+    // IUpasDao upasDao = getRegistry().getUpasDao();
+    // UserBo user = upasDao.getUser(app, userId);
+    // if (user == null) {
+    // return doResponseJson(UpasConstants.RESPONSE_NOT_FOUND,
+    // "User [" + userId + "] cannot be found in app [" + appId + "]!");
+    // }
+    //
+    // Set<UsergroupBo> usergroups = upasDao.getUserRoles(app, user);
+    // for (UsergroupBo usergroup : usergroups) {
+    // if (usergroup.isGod()) {
+    // return doResponseJson(UpasConstants.RESPONSE_OK, "true", true);
+    // }
+    // }
+    // return doResponseJson(UpasConstants.RESPONSE_OK, "false", false);
+    // } catch (Exception e) {
+    // return doResponseJson(UpasConstants.RESPONSE_SERVER_ERROR,
+    // e.getMessage());
+    // }
+    // }
 }
