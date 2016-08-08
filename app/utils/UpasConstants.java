@@ -26,6 +26,8 @@ public class UpasConstants {
     public final static String SYSTEM_ADMIN_USER_EMAIL = "admin@localhost";
     public final static int GROUP_ADMIN = 1;
 
+    public final static String SYSTEM_APP_PERM_PREFIX = "app_";
+
     public final static String DF_FULL = "yyyy-MM-dd HH:mm:ss";
     public final static String DF_HHMMSS = "HH:mm:ss";
 

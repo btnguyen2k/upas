@@ -7,9 +7,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import akka.actor.ActorRef;
 import akka.cluster.pubsub.DistributedPubSub;
+import api.UpasApi;
 import bo.app.AppBo;
 import bo.app.IAppDao;
 import bo.upas.IUpasDao;
+import bo.upas.PermissionBo;
 import compositions.AdminAuthRequired;
 import forms.FormCreateEditApplication;
 import forms.FormLogin;
@@ -142,13 +144,35 @@ public class AdminCPController extends BaseController {
         IAppDao appDao = registry.get().getAppDao();
         if (appDao.create(app)) {
             IUpasDao upasDao = registry.get().getUpasDao();
+            UpasApi upasApi = registry.get().getUpasApi();
+            PermissionBo permAttachedToApp = PermissionBo.newInstance(app);
             try {
+                // initialize app's storage
                 upasDao.initApp(app);
+
+                // create a system permission attached to the app
+                upasApi.addPermission(app, permAttachedToApp.getId(), permAttachedToApp.getTitle(),
+                        permAttachedToApp.getDescription());
+
                 flash(VIEW_APPLICATION_LIST, calcMessages().at("msg.app.create.done", app.getId()));
             } catch (Exception e) {
                 Logger.error(e.getMessage(), e);
-                appDao.delete(app);
-                upasDao.destroyApp(app);
+                try {
+                    appDao.delete(app);
+                } catch (Exception e1) {
+                    Logger.warn(e.getMessage(), e);
+                }
+                try {
+                    upasDao.destroyApp(app);
+                } catch (Exception e1) {
+                    Logger.warn(e.getMessage(), e);
+                }
+                try {
+                    upasApi.remove(app, permAttachedToApp);
+                } catch (Exception e1) {
+                    Logger.warn(e.getMessage(), e);
+                }
+
                 flash(VIEW_APPLICATION_LIST,
                         calcMessages().at("msg.app.create.failed", app.getId()));
             }
@@ -243,8 +267,13 @@ public class AdminCPController extends BaseController {
 
         appDao.delete(app);
 
+        // cleanup app's storage
         IUpasDao upasDao = registry.get().getUpasDao();
         upasDao.destroyApp(app);
+
+        // remove the system permission attached to the app
+        UpasApi upasApi = registry.get().getUpasApi();
+        upasApi.remove(app, PermissionBo.newInstance(app));
 
         flash(VIEW_APPLICATION_LIST, calcMessages().at("msg.app.delete.done", app.getId()));
 
