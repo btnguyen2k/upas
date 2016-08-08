@@ -146,13 +146,14 @@ public class AdminCPController extends BaseController {
             IUpasDao upasDao = registry.get().getUpasDao();
             UpasApi upasApi = registry.get().getUpasApi();
             PermissionBo permAttachedToApp = PermissionBo.newInstance(app);
+            AppBo systemApp = appDao.getApp(UpasConstants.SYSTEM_APP_ID);
             try {
                 // initialize app's storage
                 upasDao.initApp(app);
 
                 // create a system permission attached to the app
-                upasApi.addPermission(app, permAttachedToApp.getId(), permAttachedToApp.getTitle(),
-                        permAttachedToApp.getDescription());
+                upasApi.addPermission(systemApp, permAttachedToApp.getId(),
+                        permAttachedToApp.getTitle(), permAttachedToApp.getDescription());
 
                 flash(VIEW_APPLICATION_LIST, calcMessages().at("msg.app.create.done", app.getId()));
             } catch (Exception e) {
@@ -168,7 +169,7 @@ public class AdminCPController extends BaseController {
                     Logger.warn(e.getMessage(), e);
                 }
                 try {
-                    upasApi.remove(app, permAttachedToApp);
+                    upasApi.remove(systemApp, permAttachedToApp);
                 } catch (Exception e1) {
                     Logger.warn(e.getMessage(), e);
                 }
@@ -273,7 +274,7 @@ public class AdminCPController extends BaseController {
 
         // remove the system permission attached to the app
         UpasApi upasApi = registry.get().getUpasApi();
-        upasApi.remove(app, PermissionBo.newInstance(app));
+        upasApi.remove(appDao.getApp(UpasConstants.SYSTEM_APP_ID), PermissionBo.newInstance(app));
 
         flash(VIEW_APPLICATION_LIST, calcMessages().at("msg.app.delete.done", app.getId()));
 
