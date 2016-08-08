@@ -22,8 +22,6 @@ msg.applications = Applications
 msg.app.id = ID
 msg.app.is_disabled = Disabled
 msg.app.api_key = API Key
-msg.app.ios_p12_file = iOS P12 File
-msg.app.ios_p12_password = iOS P12 File Password
 msg.app.existing_file = Existing file (upload new file to override)
 
 msg.app.create = Create Application
@@ -38,7 +36,7 @@ error.app.empty_id = Error: Empty application id!
 error.app.exists = Error: Application "{0}" already existed!
 error.app.not_found = Error: Application "{0}" does not exist!
 error.app.empty_api_key = Error: Empty application API key!
-error.app.invalid_ios_p12_file = Error: P12 file is too large or invalid! File size: {0}, maximum allowed file size: {1}.
+error.app.cannot_delete_sytem_app = Error: System application cannot be deleted!
 
 msg.jobs = Jobs
 msg.job = Job

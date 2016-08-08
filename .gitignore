@@ -12,3 +12,4 @@ target
 
 /data/
 /.cache-main
+/.cache-tests

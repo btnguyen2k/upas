@@ -1,10 +1,6 @@
 package utils;
 
 import java.nio.charset.Charset;
-import java.util.concurrent.TimeUnit;
-
-import scala.concurrent.duration.Duration;
-import scala.concurrent.duration.FiniteDuration;
 
 /**
  * Commonly used constants.
@@ -20,25 +16,18 @@ public class UpasConstants {
     public final static int DAO_RESULT_DUPLICATED = 2;
     public final static int DAO_RESULT_NOT_AFFECTED = 0;
 
-    public final static FiniteDuration DELAY_INITIAL = Duration.create(2, TimeUnit.SECONDS);
-    public final static FiniteDuration DELAY_TICK = Duration.create(1, TimeUnit.SECONDS);
-
     public final static String FLASH_MSG_PREFIX_ERROR = "_E_:";
 
+    public final static String SYSTEM_APP_ID = "upas";
+
+    public final static String SYSTEM_ADMIN_USER_ID = "1";
+    public final static String SYSTEM_ADMIN_USER_NAME = "admin";
+    public final static String SYSTEM_ADMIN_USER_PASSWORD = "secret";
+    public final static String SYSTEM_ADMIN_USER_EMAIL = "admin@localhost";
     public final static int GROUP_ADMIN = 1;
 
     public final static String DF_FULL = "yyyy-MM-dd HH:mm:ss";
     public final static String DF_HHMMSS = "HH:mm:ss";
-
-    public final static String GROUP_ID_MASTER = "djs_master";
-
-    public final static long MAX_IOS_P12_FILE_SIZE = 32000;
-
-    public final static String OS_IOS = "IOS";
-
-    /* Android OS */
-    public final static String OS_AOS = "AOS";
-    public final static String OS_ANDROID = "ANDROID";
 
     public final static int RESPONSE_OK = 200;
     public final static int RESPONSE_NOT_FOUND = 404;

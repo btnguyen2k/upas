@@ -50,7 +50,9 @@
                                     <td style="text-align: center; vertical-align: middle;">@app.getApiKey()</td>
                                     <td style="text-align: center; vertical-align: middle; font-size: x-large;" class="text-nowrap">
                                         <a href="@app.urlEdit()" title="@messages.at("msg.edit")" style="color:green;" class="fa fa-edit"></a>
-                                        <a href="@app.urlDelete()" title="@messages.at("msg.delete")" style="color:red;" class="fa fa-remove"></a>
+                                        @if(app.getId()!=UpasConstants.SYSTEM_APP_ID){
+                                            <a href="@app.urlDelete()" title="@messages.at("msg.delete")" style="color:red;" class="fa fa-remove"></a>
+                                        }
                                     </td>
                                 </tr>
                             }

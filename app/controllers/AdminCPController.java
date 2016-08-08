@@ -3,6 +3,8 @@ package controllers;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import akka.actor.ActorRef;
 import akka.cluster.pubsub.DistributedPubSub;
 import bo.app.AppBo;
@@ -213,7 +215,10 @@ public class AdminCPController extends BaseController {
         if (app == null) {
             flash(VIEW_APPLICATION_LIST, UpasConstants.FLASH_MSG_PREFIX_ERROR
                     + calcMessages().at("error.app.not_found", id));
-
+            return redirect(routes.AdminCPController.applicationList());
+        } else if (StringUtils.equals(app.getId(), UpasConstants.SYSTEM_APP_ID)) {
+            flash(VIEW_APPLICATION_LIST, UpasConstants.FLASH_MSG_PREFIX_ERROR
+                    + calcMessages().at("error.app.cannot_delete_sytem_app", id));
             return redirect(routes.AdminCPController.applicationList());
         }
 
@@ -229,7 +234,10 @@ public class AdminCPController extends BaseController {
         if (app == null) {
             flash(VIEW_APPLICATION_LIST, UpasConstants.FLASH_MSG_PREFIX_ERROR
                     + calcMessages().at("error.app.not_found", id));
-
+            return redirect(routes.AdminCPController.applicationList());
+        } else if (StringUtils.equals(app.getId(), UpasConstants.SYSTEM_APP_ID)) {
+            flash(VIEW_APPLICATION_LIST, UpasConstants.FLASH_MSG_PREFIX_ERROR
+                    + calcMessages().at("error.app.cannot_delete_sytem_app", id));
             return redirect(routes.AdminCPController.applicationList());
         }
 

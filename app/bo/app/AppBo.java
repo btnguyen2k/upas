@@ -22,6 +22,12 @@ public class AppBo extends BaseBo {
         return bo;
     }
 
+    public static AppBo newInstance(String id, String apiKey) {
+        AppBo bo = newInstance(id);
+        bo.setApiKey(apiKey);
+        return bo;
+    }
+
     public static AppBo newInstance(AppBo another) {
         AppBo bo = newInstance();
         bo.fromMap(another.toMap());
