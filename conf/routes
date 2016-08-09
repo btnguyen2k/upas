@@ -4,21 +4,19 @@
 
 GET     /                                       controllers.HomeController.index
 
-GET     /cp/test                                controllers.AdminCPController.test()
+GET     /cp/login                               controllers.CpController.login(returnUrl: String?="")
+POST    /cp/login                               controllers.CpController.loginSubmit(returnUrl: String?="")
 
-GET     /cp/login                               controllers.AdminCPController.login(returnUrl: String?="")
-POST    /cp/login                               controllers.AdminCPController.loginSubmit(returnUrl: String?="")
+GET     /cp                                     controllers.CpController.index()
+GET     /cp/home                                controllers.CpController.home()
 
-GET     /cp                                     controllers.AdminCPController.index()
-GET     /cp/home                                controllers.AdminCPController.home()
-
-GET     /cp/appList                             controllers.AdminCPController.applicationList()
-GET     /cp/createApp                           controllers.AdminCPController.createApplication()
-POST    /cp/createApp                           controllers.AdminCPController.createApplicationSubmit()
-GET     /cp/editApp                             controllers.AdminCPController.editApplication(id: String)
-POST    /cp/editApp                             controllers.AdminCPController.editApplicationSubmit(id: String)
-GET     /cp/deleteApp                           controllers.AdminCPController.deleteApplication(id: String)
-POST    /cp/deleteApp                           controllers.AdminCPController.deleteApplicationSubmit(id: String)
+GET     /cp/appList                             controllers.AdminCpController.applicationList()
+GET     /cp/createApp                           controllers.AdminCpController.createApplication()
+POST    /cp/createApp                           controllers.AdminCpController.createApplicationSubmit()
+GET     /cp/editApp                             controllers.AdminCpController.editApplication(id: String)
+POST    /cp/editApp                             controllers.AdminCpController.editApplicationSubmit(id: String)
+GET     /cp/deleteApp                           controllers.AdminCpController.deleteApplication(id: String)
+POST    /cp/deleteApp                           controllers.AdminCpController.deleteApplicationSubmit(id: String)
 
 POST    /api/addPermission                      controllers.ApiController.apiAddPermission()
 POST    /api/removePermission                   controllers.ApiController.apiRemovePermission()

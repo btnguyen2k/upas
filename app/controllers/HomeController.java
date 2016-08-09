@@ -7,13 +7,13 @@ import javax.inject.Inject;
 import com.github.ddth.commons.utils.DateFormatUtils;
 import com.google.inject.Provider;
 
-import compositions.AdminAuthRequired;
+import compositions.AuthRequired;
 import modules.cluster.ICluster;
 import modules.registry.IRegistry;
 import play.mvc.Controller;
 import play.mvc.Result;
 
-@AdminAuthRequired
+@AuthRequired
 public class HomeController extends Controller {
 
     @Inject

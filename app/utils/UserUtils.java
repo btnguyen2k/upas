@@ -50,21 +50,27 @@ public class UserUtils {
         return StringUtils.equalsIgnoreCase(encryptedPassword, user.getPassword());
     }
 
-    public final static String SESSION_ADMIN_ID = "admin_id";
+    public final static String SESSION_CP_USER_ID = "cp_user_id";
 
     /**
-     * Gets the current logged in administrator.
+     * Gets the current Control Panel's logged-in user.
      * 
      * @param registry
      * @param session
      * @return
      */
-    public static UserBo currentAdmin(IRegistry registry, Session session) {
-        String id = session.get(SESSION_ADMIN_ID);
+    public static UserBo currentCpUser(IRegistry registry, Session session) {
+        String id = session.get(SESSION_CP_USER_ID);
         return registry.getUserDao().getUser(id);
     }
 
-    public static void loginAdmin(UserBo admin, Session session) {
-        session.put(SESSION_ADMIN_ID, admin.getId());
+    /**
+     * Logs user to the Control Panel.
+     * 
+     * @param user
+     * @param session
+     */
+    public static void loginCp(UserBo user, Session session) {
+        session.put(SESSION_CP_USER_ID, user.getId());
     }
 }

@@ -24,7 +24,7 @@ import play.mvc.Result;
 import utils.UpasUtils;
 import utils.UpasConstants;
 
-public class ApiAuthRequiredAction extends Action<AdminAuthRequired> {
+public class ApiAuthRequiredAction extends Action<AuthRequired> {
 
     @Inject
     private Provider<IRegistry> registry;

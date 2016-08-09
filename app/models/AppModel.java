@@ -25,11 +25,11 @@ public class AppModel extends AppBo {
     }
 
     public String urlEdit() {
-        return routes.AdminCPController.editApplication(getId()).url();
+        return routes.AdminCpController.editApplication(getId()).url();
     }
 
     public String urlDelete() {
-        return routes.AdminCPController.deleteApplication(getId()).url();
+        return routes.AdminCpController.deleteApplication(getId()).url();
     }
 
 }

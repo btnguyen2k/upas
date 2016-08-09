@@ -7,8 +7,15 @@ import java.lang.annotation.Target;
 
 import play.mvc.With;
 
-@With(AdminAuthRequiredAction.class)
+/**
+ * Annotated to ControlPanel controller to validate access to CP urls.
+ * 
+ * @author Thanh Nguyen <btnguyen2k@gmail.com>
+ * @since 0.1.0
+ */
+@With(AuthRequiredAction.class)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface AdminAuthRequired {
+public @interface AuthRequired {
+    int usergroup() default 0;
 }

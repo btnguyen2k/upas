@@ -25,11 +25,11 @@
 
         <ul class="sidebar-menu">
             <li @if(active=="home" || active=="dashboard"){class="active"}>
-                <a href="@routes.AdminCPController.home()"><i class="fa fa-dashboard"></i> @messages.at("msg.home")</a>
+                <a href="@routes.CpController.home()"><i class="fa fa-dashboard"></i> @messages.at("msg.home")</a>
             </li>
 
             <li @if(active=="app_list"){class="active"}>
-                <a href="@routes.AdminCPController.applicationList()">
+                <a href="@routes.AdminCpController.applicationList()">
                     <i class="fa fa-building"></i> @messages.at("msg.applications")
                     <span class="label @if(UpasUtils.countApplications()>0){label-primary}else{label-grey} pull-right">@UpasUtils.countApplications()</span>
                 </a>
@@ -39,13 +39,13 @@
             <li class="header" style="font-weight: bold">@messages.at("msg.jobs")</li>
 
             <li @if(active=="job_template_list"){class="active"}>
-                <a href="@routes.AdminCPController.jobTemplateList()">
+                <a href="@routes.AdminCpController.jobTemplateList()">
                     <i class="fa fa-tasks"></i> @messages.at("msg.job_templates")
                     <span class="label @if(JobUtils.countJobTemplates()>0){label-primary}else{label-grey} pull-right">@JobUtils.countJobTemplates()</span>
                 </a>
             </li>
             <li @if(active=="job_list"){class="active"}>
-                <a href="@routes.AdminCPController.jobList()">
+                <a href="@routes.AdminCpController.jobList()">
                     <i class="fa fa-cogs"></i> @messages.at("msg.job_list")
                     <span class="label @if(JobUtils.countJobs()>0){label-primary}else{label-grey} pull-right">@JobUtils.countJobs()</span>
                 </a>

@@ -7,8 +7,8 @@
 <section class="content-header">
     <h1>@messages.at("msg.app.delete")</h1>
     <ol class="breadcrumb">
-        <li><a href="@routes.AdminCPController.home()"><i class="fa fa-dashboard"></i> @messages.at("msg.home")</a></li>
-        <li><a href="@routes.AdminCPController.applicationList()"><i class="fa fa-building"></i> @messages.at("msg.applications")</a></li>
+        <li><a href="@routes.CpController.home()"><i class="fa fa-dashboard"></i> @messages.at("msg.home")</a></li>
+        <li><a href="@routes.AdminCpController.applicationList()"><i class="fa fa-building"></i> @messages.at("msg.applications")</a></li>
         <li class="active">@messages.at("msg.app.delete")</li>
     </ol>
 </section>
@@ -22,7 +22,7 @@
                         <button type="submit" class="btn btn-sm btn-danger" style="width: 100px"><i class="fa fa-close"> @messages.at("msg.ok")</i></button>
                         &nbsp;&nbsp;&nbsp;&nbsp;
                         <button type="button" class="btn btn-sm btn-default" style="width: 100px"
-                            onclick="document.location.href='@routes.AdminCPController.applicationList()';"><i class="fa fa-reply"> @messages.at("msg.cancel")</i></button>
+                            onclick="document.location.href='@routes.AdminCpController.applicationList()';"><i class="fa fa-reply"> @messages.at("msg.cancel")</i></button>
                     </div>
 				    <div class="box-body">
 				        <div class="form-group">
@@ -42,7 +42,7 @@
                         <button type="submit" class="btn btn-sm btn-danger" style="width: 100px"><i class="fa fa-close"> @messages.at("msg.ok")</i></button>
                         &nbsp;&nbsp;&nbsp;&nbsp;
                         <button type="button" class="btn btn-sm btn-default" style="width: 100px"
-                            onclick="document.location.href='@routes.AdminCPController.applicationList()';"><i class="fa fa-reply"> @messages.at("msg.cancel")</i></button>
+                            onclick="document.location.href='@routes.AdminCpController.applicationList()';"><i class="fa fa-reply"> @messages.at("msg.cancel")</i></button>
 				    </div>
 				</form>
             </div>
