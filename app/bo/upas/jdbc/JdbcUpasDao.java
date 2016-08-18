@@ -254,6 +254,10 @@ public abstract class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
         } else {
             removeFromCache(cacheNameUsergroupPermission, cacheKey);
         }
+        UsergroupBo ug = getUsergroup(app, usergroupPerm.getGroupId());
+        if (ug != null) {
+            removeFromCache(cacheNameUsergroup, cacheKeyUsergroupPermissions(app, ug));
+        }
     }
 
     /*----------------------------------------------------------------------*/
@@ -275,6 +279,10 @@ public abstract class JdbcUpasDao extends BaseJdbcDao implements IUpasDao {
             putToCache(cacheNameUserRole, cacheKey, userRole);
         } else {
             removeFromCache(cacheNameUserRole, cacheKey);
+        }
+        UserBo user = getUser(app, userRole.getUserId());
+        if (user != null) {
+            removeFromCache(cacheNameUser, cacheKeyUserRoles(app, user));
         }
     }
     /*----------------------------------------------------------------------*/
